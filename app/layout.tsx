@@ -29,13 +29,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${switzer.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">
+    <html lang="en"className={`${switzer.variable} h-full antialiased`}>
+      <body className="min-h-screen h-screen overflow-hidden">
         <Nav />
-      {children}</body>
+
+        <main className="pt-20 px-10 h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {children}
+        </main>
+      </body>
 
     </html>
   );
