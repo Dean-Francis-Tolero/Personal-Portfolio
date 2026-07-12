@@ -3,7 +3,7 @@ export default function ResumePage() {
         <main className="min-h-screen flex flex-col items-center">
 
             {/* Main Content */}
-            <div className="flex-1 w-full flex items-center justify-center p-6">
+            <div className="flex-1 w-full flex items-center justify-center p-6 text-xl">
                 <div className="w-full flex flex-col lg:flex-row justify-center gap-10 lg:gap-20 font-bold">
 
                     {/* Information */}

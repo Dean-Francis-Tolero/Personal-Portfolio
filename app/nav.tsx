@@ -7,7 +7,7 @@ import { text } from "stream/consumers";
 export default function Nav() {
   const pathname = usePathname();
   return (
-    <nav className="fixed top-6 right-6">
+    <nav className="fixed top-6 right-6 z-10">
       <ul className="flex flex-col gap-4 text-2xl font-bold text-right">
         <li><Link href="/" className={pathname === "/" ? "text-black" : "text-[#a7a7a7] hover:text-[#7A7979] transition-colors"}>HOME</Link></li>
         <li><Link href="/projects" className={pathname === "/projects" ? "text-black" : "text-[#a7a7a7] hover:text-[#7A7979] transition-colors"}>PROJECTS</Link></li>
