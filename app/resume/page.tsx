@@ -3,8 +3,8 @@ export default function ResumePage() {
         <main className="min-h-screen flex flex-col items-center">
 
             {/* Main Content */}
-            <div className="flex-1 w-full flex items-center justify-center p-6 text-xl">
-                <div className="w-full flex flex-col lg:flex-row justify-center gap-10 lg:gap-20 font-bold">
+            <div className="px-20 pt-30 flex-1 w-full flex items-center justify-center p-6 text-xl">
+                <div className="w-full flex flex-col 2xl:flex-row justify-center gap-10 lg:gap-20 font-bold">
 
                     {/* Information */}
                     <div className="shrink-0">
@@ -46,16 +46,12 @@ export default function ResumePage() {
             </div>
 
             {/* Footer */}
-            <footer className="w-full px-6 py-6 flex justify-between items-center text-sm font-bold">
-
-                <p className="text-[#a7a7a7]">
-                    © 2026 Dean Francis Tolero
-                </p>
+            <footer className="w-full px-6 py-6 flex justify-center items-center text-sm font-bold">
 
                 <div className="flex gap-6">
 
                     <a
-                        href="https://github.com/Dean-Francis"
+                        href="https://github.com/Dean-Francis-Tolero"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="hover:text-[#a7a7a7] transition-colors"

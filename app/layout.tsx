@@ -33,7 +33,7 @@ export default function RootLayout({
       <body className="min-h-screen h-screen overflow-hidden">
         <Nav />
 
-        <main className="pt-20 px-10 h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <main className="h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {children}
         </main>
       </body>
