@@ -1,5 +1,4 @@
-export default async function Home() {
-  await new Promise((resolve) => setTimeout(resolve, 4000));
+export default function Home() {
 
   return (
     <main className="pt-30 min-h-dvh md:h-dvh overflow-y-auto md:overflow-hidden relative flex flex-col">
@@ -11,12 +10,11 @@ export default async function Home() {
 
         <div className="p-6 md:p-4">
           <h1 className="text-[80px] sm:text-[120px] md:text-[160px] lg:text-[200px] font-bold">Concept</h1>
-          <h2 className="text-[40px] text-right font-bold text-[#a7a7a7]">Dean Francis</h2>
         </div>
       </div>
 
-      <div className="flex-1 bg-black text-white py-5 px-6 ">
-        <h1 className="text-center">test</h1>
+      <div className="flex-1 bg-black text-white py-10 px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.06)]">
+        <h1 className="text-[50px] text-right pt-4 text-[#a7a7a7]">Dean Francis Tolero</h1>
       </div>
     </main>
   );
