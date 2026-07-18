@@ -29,18 +29,18 @@ function BarLoader() {
       animate="animate"
       className="flex gap-1"
     >
-      <motion.div variants={variants} className="h-12 w-2 bg-black" />
-      <motion.div variants={variants} className="h-12 w-2 bg-black" />
-      <motion.div variants={variants} className="h-12 w-2 bg-black" />
-      <motion.div variants={variants} className="h-12 w-2 bg-black" />
-      <motion.div variants={variants} className="h-12 w-2 bg-black" />
+      <motion.div variants={variants} className="h-12 w-2 bg-foreground" />
+      <motion.div variants={variants} className="h-12 w-2 bg-foreground" />
+      <motion.div variants={variants} className="h-12 w-2 bg-foreground" />
+      <motion.div variants={variants} className="h-12 w-2 bg-foreground" />
+      <motion.div variants={variants} className="h-12 w-2 bg-foreground" />
     </motion.div>
   );
 }
 
 export default function Loading() {
   return (
-    <div className="fixed inset-0 z-50 flex h-dvh w-full items-center justify-center bg-[#f2f0ef]">
+    <div className="fixed inset-0 z-50 flex h-dvh w-full items-center justify-center bg-background">
       <BarLoader />
     </div>
   );

@@ -1,9 +1,11 @@
 // app/layout.tsx
 import type { Metadata } from "next";
+import { ViewTransition } from "react";
 import "./globals.css";
 import Nav from "../components/nav";
+import Logo from "../components/logo";
+import { ScrollContainerProvider } from "../components/scroll_container";
 import localFont from "next/font/local";
-import PageTransition from "../components/page_transition";
 
 const switzer = localFont({
   src: [
@@ -34,14 +36,14 @@ export default function RootLayout({
     <html lang="en" className={`${switzer.variable} h-full antialiased`}>
       <body className="min-h-screen h-screen overflow-hidden">
         
+        <Logo />
         <Nav />
 
-        <main className="h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {/* One single wrapper */}
-          <PageTransition>
+        <ScrollContainerProvider className="h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <ViewTransition update="page-crossfade">
             {children}
-          </PageTransition>
-        </main>
+          </ViewTransition>
+        </ScrollContainerProvider>
 
       </body>
     </html>

@@ -1,3 +1,6 @@
-export default function ResumePage() {
-    
-};
+export default function AboutPage() {
+    return (
+        <main>
+        </main>
+    );
+}

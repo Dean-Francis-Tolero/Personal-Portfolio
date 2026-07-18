@@ -34,6 +34,7 @@ export type Project = {
   bullets?: string[];
   link?: string;
   tech?: string[];
+  image?: string; // thumbnail for the projects page grid — falls back to a placeholder block until set
 };
 
 // ---- Data ----

@@ -1,42 +1,44 @@
+import { LINK_UNDERLINE } from "../../lib/styles";
+
 export default function ResumePage() {
     return (
         <main className="min-h-screen flex flex-col items-center">
 
             {/* Main Content */}
             <div className="px-20 pt-30 flex-1 w-full flex items-center justify-center p-6 text-xl">
-                <div className="w-full flex flex-col 2xl:flex-row justify-center gap-10 lg:gap-20 font-bold">
+                <div className="w-full flex flex-col 2xl:flex-row justify-center gap-10 lg:gap-20">
 
                     {/* Information */}
                     <div className="shrink-0">
-                        <h3 className="text-[#a7a7a7]">Information</h3>
-                        <p className="mt-4">Dean Francis Tolero</p>
-                    </div>
+                        <h3 className="text-muted font-bold">Information</h3>
+                        <div className="mt-4 font-semibold">
+                            <p>Dean Francis Tolero</p>
+                            <p>+971 56 138 4834</p>
+                        </div>
+                    </div>  
 
                     {/* Personal Story */}
-                    <div className="w-full lg:w-[500px]">
-                        <h3 className="text-[#a7a7a7]">Personal Story</h3>
-                        <p className="mt-4">
-                            I believe in documenting the journey — the ideas, the lessons,
-                            and the things we create along the way. My curiosity for
-                            technology grew into a passion for building software, exploring
-                            ideas, and creating meaningful digital experiences. This website
-                            is a reflection of my journey — a place where I share what I
-                            build, what I learn, and what inspires me.
+                    <div className="w-full lg:w-500px">
+                        <h3 className="text-muted font-bold">Personal Story</h3>
+                        <p className="mt-4 font-semibold">
+                            I started programming at the age of 16, and since then, I have been passionate about creating innovative solutions through code. My journey has taken me through various programming languages and frameworks, allowing me to develop a diverse skill set. I am constantly seeking new challenges 
+                            and opportunities to grow as a developer and contribute to meaningful projects. I am now 22 years old, and I am excited to continue my journey in the world of technology, pushing the boundaries of what is possible with code.
                         </p>
                     </div>
 
                     {/* Connect */}
                     <div className="shrink-0">
-                        <h3 className="text-[#a7a7a7]">Connect</h3>
-
-                        <p className="mt-4">
+                        <h3 className="text-muted font-bold">Connect</h3>
+                        <div className="mt-4 font-semibold">
+                            <p className="mt-4 font-semibold">
                             Feel free to reach out for opportunities, collaborations,
-                            or just to connect.
-                        </p>
+                            or just to connect.</p>
+                        </div>
+                        
 
                         <a
                             href="mailto:deanfrancistolero@gmail.com"
-                            className="block mt-2 hover:text-[#a7a7a7] transition-colors"
+                            className={`${LINK_UNDERLINE} mt-2 hover:text-muted transition-colors font-semibold`}
                         >
                             deanfrancistolero@gmail.com
                         </a>
@@ -54,7 +56,7 @@ export default function ResumePage() {
                         href="https://github.com/Dean-Francis-Tolero"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-[#a7a7a7] transition-colors"
+                        className={`${LINK_UNDERLINE} hover:text-muted transition-colors`}
                     >
                         GitHub
                     </a>
@@ -63,17 +65,17 @@ export default function ResumePage() {
                         href="https://www.linkedin.com/in/deanfrancistolero"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hover:text-[#a7a7a7] transition-colors"
+                        className={`${LINK_UNDERLINE} hover:text-muted transition-colors`}
                     >
                         LinkedIn
                     </a>
 
                     <a
-                        href="/resume.pdf"
+                        href="/Dean_Francis_Tolero_Resume.pdf"
                         download
-                        className="hover:text-[#a7a7a7] transition-colors"
+                        className={`${LINK_UNDERLINE} hover:text-muted transition-colors`}
                     >
-                        Resume
+                        Download Resume
                     </a>
 
                 </div>
