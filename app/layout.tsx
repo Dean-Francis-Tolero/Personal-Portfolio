@@ -4,7 +4,6 @@ import { ViewTransition } from "react";
 import "./globals.css";
 import Nav from "../components/nav";
 import Logo from "../components/logo";
-import IntroLoader from "../components/intro_loader";
 import { ScrollContainerProvider } from "../components/scroll_container";
 import localFont from "next/font/local";
 
@@ -39,7 +38,6 @@ export default function RootLayout({
         
         <Logo />
         <Nav />
-        <IntroLoader />
 
         <ScrollContainerProvider className="h-full overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <ViewTransition update="page-crossfade">

@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { href: "/", label: "HOME" },
   { href: "/projects", label: "PROJECTS" },
   { href: "/resume", label: "RESUME" },
-  { href: "/about", label: "ABOUT" },
+  { href: "/experience", label: "EXPERIENCE" },
 ];
 
 export default function Nav() {

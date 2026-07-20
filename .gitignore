@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/tools/animation-inspector/node_modules
 /.pnp
 .pnp.*
 .yarn/*
