@@ -23,7 +23,16 @@
 
 # misc
 .DS_Store
+Thumbs.db
 *.pem
+
+# editors
+.vscode/
+.idea/
+
+# ad hoc debug output from tools/animation-inspector (screenshots, capture dumps)
+tools/animation-inspector/*.png
+tools/animation-inspector/*_capture.json
 
 # debug
 npm-debug.log*

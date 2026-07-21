@@ -1,30 +1,26 @@
-// ---- Types ----
-// These define the *shape* every entry must follow.
-// No actual data yet — just the contract.
-
 export type Experience = {
   id: string;
-  title: string; // "Software Engineer"
+  title: string;
   company: string;
   location?: string;
-  startDate: string; // "2023-06"
+  startDate: string;
   endDate: string | "Present";
-  bullets: string[]; // description points from your CV
+  bullets: string[];
 };
 
 export type Education = {
   id: string;
   institution: string;
-  degree: string; // "B.Sc. Computer Science"
+  degree: string;
   location?: string;
   startDate: string;
   endDate: string;
-  bullets?: string[]; // honors, relevant coursework, etc.
+  bullets?: string[];
 };
 
 export type SkillGroup = {
-  category: string; // "Languages"
-  items: string[]; // ["Python", "TypeScript", "Go"]
+  category: string;
+  items: string[];
 };
 
 export type Project = {
@@ -34,10 +30,9 @@ export type Project = {
   bullets?: string[];
   link?: string;
   tech?: string[];
-  image?: string; // thumbnail for the projects page grid — falls back to a placeholder block until set
+  // falls back to a bg-muted/25 placeholder block (see ProjectCard) until set
+  image?: string;
 };
-
-// ---- Data ----
 
 export const experience: Experience[] = [
   {

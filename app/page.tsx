@@ -1,33 +1,22 @@
 "use client";
 
-import { motion, type Variants, useReducedMotion } from "motion/react";
+import { useMemo } from "react";
+import { motion, type Variants } from "motion/react";
+import { useCurtainEntranceVariants } from "../lib/curtain_entrance";
 
 export default function Home() {
-  const reduceMotion = useReducedMotion();
+  const { container, fadeRise, reduceMotion } = useCurtainEntranceVariants();
 
-  const container: Variants = {
-    initial: {},
-    animate: {
-      transition: reduceMotion ? {} : { staggerChildren: 0.15, delayChildren: 0.1 },
-    },
-  };
-
-  const fadeRise: Variants = {
-    initial: reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: reduceMotion ? { duration: 0 } : { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
-
-  const wipeReveal: Variants = {
-    initial: reduceMotion ? { clipPath: "inset(0 0% 0 0)" } : { clipPath: "inset(0 100% 0 0)" },
-    animate: {
-      clipPath: "inset(0 0% 0 0)",
-      transition: reduceMotion ? { duration: 0 } : { duration: 0.7, ease: [0.83, 0, 0.17, 1] },
-    },
-  };
+  const wipeReveal: Variants = useMemo(
+    () => ({
+      initial: reduceMotion ? { clipPath: "inset(0 0% 0 0)" } : { clipPath: "inset(0 100% 0 0)" },
+      animate: {
+        clipPath: "inset(0 0% 0 0)",
+        transition: reduceMotion ? { duration: 0 } : { duration: 0.7, ease: [0.83, 0, 0.17, 1] },
+      },
+    }),
+    [reduceMotion]
+  );
 
   return (
     <motion.main

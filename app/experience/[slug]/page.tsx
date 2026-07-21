@@ -29,7 +29,7 @@ export default async function ExperienceEntryPage({
   const { default: Post, metadata } = mod;
 
   return (
-    <main>
+    <main className="min-h-screen">
       <article className="max-w-3xl mx-auto w-full px-10 pt-40 md:pt-52 pb-24">
         <Link
           href="/experience"

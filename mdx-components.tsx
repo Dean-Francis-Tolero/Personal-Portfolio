@@ -26,14 +26,15 @@ const components: MDXComponents = {
     </blockquote>
   ),
   hr: () => <hr className="border-foreground/10 my-8" />,
-  img: (props) => (
+  img: ({ alt = "", ...props }) => (
     <Image
+      alt={alt}
       sizes="100vw"
       width={0}
       height={0}
       style={{ width: "100%", height: "auto" }}
       className="my-6"
-      {...(props as ImageProps)}
+      {...(props as Omit<ImageProps, "alt">)}
     />
   ),
 };

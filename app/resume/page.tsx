@@ -1,40 +1,47 @@
+"use client";
+
+import { motion } from "motion/react";
 import { LINK_UNDERLINE } from "../../lib/styles";
+import { useCurtainEntranceVariants } from "../../lib/curtain_entrance";
 
 export default function ResumePage() {
-    return (
-        <main className="min-h-screen flex flex-col items-center">
+    const { container, fadeRise } = useCurtainEntranceVariants();
 
-            {/* Main Content */}
+    return (
+        <motion.main
+            variants={container}
+            initial="initial"
+            animate="animate"
+            className="min-h-screen flex flex-col items-center"
+        >
+
             <div className="px-20 pt-30 flex-1 w-full flex items-center justify-center p-6 text-xl">
                 <div className="w-full flex flex-col 2xl:flex-row justify-center gap-10 lg:gap-20">
 
-                    {/* Information */}
-                    <div className="shrink-0">
+                    <motion.div variants={fadeRise} className="shrink-0">
                         <h3 className="text-muted font-bold">Information</h3>
                         <div className="mt-4 font-semibold">
                             <p>Dean Francis Tolero</p>
                             <p>+971 56 138 4834</p>
                         </div>
-                    </div>  
+                    </motion.div>
 
-                    {/* Personal Story */}
-                    <div className="w-full lg:w-500px">
+                    <motion.div variants={fadeRise} className="w-full lg:w-500px">
                         <h3 className="text-muted font-bold">Personal Story</h3>
                         <p className="mt-4 font-semibold">
-                            I started programming at the age of 16, and since then, I have been passionate about creating innovative solutions through code. My journey has taken me through various programming languages and frameworks, allowing me to develop a diverse skill set. I am constantly seeking new challenges 
+                            I started programming at the age of 16, and since then, I have been passionate about creating innovative solutions through code. My journey has taken me through various programming languages and frameworks, allowing me to develop a diverse skill set. I am constantly seeking new challenges
                             and opportunities to grow as a developer and contribute to meaningful projects. I am now 22 years old, and I am excited to continue my journey in the world of technology, pushing the boundaries of what is possible with code.
                         </p>
-                    </div>
+                    </motion.div>
 
-                    {/* Connect */}
-                    <div className="shrink-0">
+                    <motion.div variants={fadeRise} className="shrink-0">
                         <h3 className="text-muted font-bold">Connect</h3>
                         <div className="mt-4 font-semibold">
                             <p className="mt-4 font-semibold">
                             Feel free to reach out for opportunities, collaborations,
                             or just to connect.</p>
                         </div>
-                        
+
 
                         <a
                             href="mailto:deanfrancistolero@gmail.com"
@@ -42,13 +49,12 @@ export default function ResumePage() {
                         >
                             deanfrancistolero@gmail.com
                         </a>
-                    </div>
+                    </motion.div>
 
                 </div>
             </div>
 
-            {/* Footer */}
-            <footer className="w-full px-6 py-6 flex justify-center items-center text-sm font-bold">
+            <motion.footer variants={fadeRise} className="w-full px-6 py-6 flex justify-center items-center text-sm font-bold">
 
                 <div className="flex gap-6">
 
@@ -80,8 +86,8 @@ export default function ResumePage() {
 
                 </div>
 
-            </footer>
+            </motion.footer>
 
-        </main>
+        </motion.main>
     )
 }

@@ -1,27 +1,12 @@
 "use client";
 
-import { motion, type Variants, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { projects } from "../../lib/resume_data";
 import { ProjectParallax } from "../../components/project_parallax";
+import { useCurtainEntranceVariants } from "../../lib/curtain_entrance";
 
 export default function ProjectsPage() {
-  const reduceMotion = useReducedMotion();
-
-  const container: Variants = {
-    initial: {},
-    animate: {
-      transition: reduceMotion ? {} : { staggerChildren: 0.15, delayChildren: 0.1 },
-    },
-  };
-
-  const fadeRise: Variants = {
-    initial: reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 },
-    animate: {
-      opacity: 1,
-      y: 0,
-      transition: reduceMotion ? { duration: 0 } : { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
+  const { container, fadeRise } = useCurtainEntranceVariants();
 
   return (
     <main>

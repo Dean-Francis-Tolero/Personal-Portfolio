@@ -58,7 +58,7 @@ export function ScrollContainerProvider({
 
   return (
     <ScrollContainerContext.Provider value={ref}>
-      <main ref={ref as RefObject<HTMLElement>} className={className}>
+      <main ref={ref as RefObject<HTMLElement>} className={`relative ${className ?? ""}`}>
         <div ref={contentRef}>{children}</div>
       </main>
     </ScrollContainerContext.Provider>

@@ -1,17 +1,8 @@
-// Reusable animation-inspection tool.
-// Captures CSS/WAAPI animation timing (via Chrome DevTools Protocol's
-// Animation domain) plus raw computed-style samples (rAF polling fallback,
-// for imperative/rAF-driven motion the CDP Animation domain can't see)
-// for a single interaction on any page.
-//
-// Usage:
-//   node capture.js <url> --selector "<css selector>" [--action hover|click|focus] [--duration 1500] [--out out.json]
-//
-// Example:
-//   node capture.js https://example.com/blog --selector "a.list-row" --action hover
-
 const { chromium } = require("playwright");
 const fs = require("fs");
+
+const USAGE =
+  'Usage: node capture.js <url> --selector "<css selector>" [--action hover|click|focus] [--duration ms] [--out file.json]';
 
 function parseArgs(argv) {
   const args = { action: "hover", duration: 1500, out: null };
@@ -26,29 +17,29 @@ function parseArgs(argv) {
   return args;
 }
 
-async function main() {
-  const args = parseArgs(process.argv);
-  if (!args.url || !args.selector) {
-    console.error(
-      'Usage: node capture.js <url> --selector "<css selector>" [--action hover|click|focus] [--duration ms] [--out file.json]'
-    );
-    process.exit(1);
-  }
-
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
+async function captureCdpAnimations(page) {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send("Animation.enable");
+  const events = [];
+  cdp.on("Animation.animationStarted", (evt) => events.push(evt));
+  return () =>
+    events.map((e) => ({
+      type: e.animation.type,
+      name: e.animation.name,
+      cssId: e.animation.cssId,
+      duration: e.animation.source?.duration,
+      delay: e.animation.source?.delay,
+      easing: e.animation.source?.easing,
+      iterations: e.animation.source?.iterations,
+      direction: e.animation.source?.direction,
+      fill: e.animation.source?.fill,
+      keyframesRule: e.animation.source?.keyframesRule,
+    }));
+}
 
-  const animationEvents = [];
-  cdp.on("Animation.animationStarted", (evt) => animationEvents.push(evt));
-
-  await page.goto(args.url, { waitUntil: "networkidle" });
-
-  // Start a rAF sampler on the target element to catch imperative
-  // (non-CSS, non-WAAPI) motion that the Animation domain won't report.
+async function sampleComputedStyleOverTime(page, selector, durationMs) {
   await page.evaluate(
-    ({ selector, duration }) => {
+    ({ selector, durationMs }) => {
       window.__samples = [];
       const el = document.querySelector(selector);
       if (!el) return;
@@ -63,67 +54,73 @@ async function main() {
           color: cs.color,
           filter: cs.filter,
         });
-        if (performance.now() - start < duration) requestAnimationFrame(tick);
+        if (performance.now() - start < durationMs) requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
     },
-    { selector: args.selector, duration: args.duration }
+    { selector, durationMs }
   );
+  return () => page.evaluate(() => window.__samples);
+}
 
-  const locator = page.locator(args.selector).first();
-  if (args.action === "hover") await locator.hover();
-  else if (args.action === "click") await locator.click();
-  else if (args.action === "focus") await locator.focus();
+async function triggerInteraction(page, selector, action) {
+  const locator = page.locator(selector).first();
+  if (action === "hover") await locator.hover();
+  else if (action === "click") await locator.click();
+  else if (action === "focus") await locator.focus();
+}
 
-  await page.waitForTimeout(args.duration + 100);
-
-  const samples = await page.evaluate(() => window.__samples);
-  await browser.close();
-
-  const result = {
-    url: args.url,
-    selector: args.selector,
-    action: args.action,
-    cdpAnimations: animationEvents.map((e) => ({
-      type: e.animation.type,
-      name: e.animation.name,
-      cssId: e.animation.cssId,
-      duration: e.animation.source?.duration,
-      delay: e.animation.source?.delay,
-      easing: e.animation.source?.easing,
-      iterations: e.animation.source?.iterations,
-      direction: e.animation.source?.direction,
-      fill: e.animation.source?.fill,
-      keyframesRule: e.animation.source?.keyframesRule,
-    })),
-    rafSampleCount: samples.length,
-    rafSamples: samples,
-  };
-
-  if (args.out) {
-    fs.writeFileSync(args.out, JSON.stringify(result, null, 2));
-    console.log(`Wrote ${args.out}`);
-  }
-
+function summarize({ cdpAnimations, rafSamples, duration }) {
   console.log("\n=== CDP-reported CSS/WAAPI animations ===");
-  if (result.cdpAnimations.length === 0) {
-    console.log("(none — this interaction's motion is likely imperative/rAF-driven, see raw samples below)");
+  if (cdpAnimations.length === 0) {
+    console.log("(none — check the raw samples below for rAF/imperative-driven motion instead)");
   } else {
-    for (const a of result.cdpAnimations) {
+    for (const a of cdpAnimations) {
       console.log(
         `- ${a.type} "${a.name || a.cssId || "unnamed"}": duration=${a.duration}ms delay=${a.delay}ms easing=${a.easing} iterations=${a.iterations}`
       );
     }
   }
 
-  console.log(`\n=== Raw computed-style samples: ${samples.length} frames over ${args.duration}ms ===`);
+  console.log(`\n=== Raw computed-style samples: ${rafSamples.length} frames over ${duration}ms ===`);
   console.log("(first, middle, last frame shown; full data in --out file if provided)");
-  const idxs = [0, Math.floor(samples.length / 2), samples.length - 1].filter(
+  const indices = [0, Math.floor(rafSamples.length / 2), rafSamples.length - 1].filter(
     (i, pos, arr) => i >= 0 && arr.indexOf(i) === pos
   );
-  for (const i of idxs) {
-    if (samples[i]) console.log(`  t=${samples[i].t}ms`, samples[i]);
+  for (const i of indices) {
+    if (rafSamples[i]) console.log(`  t=${rafSamples[i].t}ms`, rafSamples[i]);
   }
+}
+
+async function main() {
+  const args = parseArgs(process.argv);
+  if (!args.url || !args.selector) {
+    console.error(USAGE);
+    process.exit(1);
+  }
+
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+
+  const getCdpAnimations = await captureCdpAnimations(page);
+  await page.goto(args.url, { waitUntil: "networkidle" });
+  const getRafSamples = await sampleComputedStyleOverTime(page, args.selector, args.duration);
+
+  await triggerInteraction(page, args.selector, args.action);
+  await page.waitForTimeout(args.duration + 100);
+
+  const cdpAnimations = getCdpAnimations();
+  const rafSamples = await getRafSamples();
+  await browser.close();
+
+  const result = { url: args.url, selector: args.selector, action: args.action, cdpAnimations, rafSamples };
+
+  if (args.out) {
+    fs.writeFileSync(args.out, JSON.stringify(result, null, 2));
+    console.log(`Wrote ${args.out}`);
+  }
+
+  summarize({ cdpAnimations, rafSamples, duration: args.duration });
 }
 
 main().catch((e) => {

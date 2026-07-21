@@ -5,8 +5,6 @@
   --foreground: #121212;
   --muted: #6d6d6d;
   --muted-strong: #7a7979;
-  --duration-exit: 150ms;
-  --duration-enter: 220ms;
 }
 
 @theme inline {
@@ -22,30 +20,3 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
 }
-
-::view-transition-old(.page-crossfade) {
-  animation: var(--duration-exit) ease-in both page-dissolve reverse;
-}
-::view-transition-new(.page-crossfade) {
-  animation: var(--duration-enter) ease-out var(--duration-exit) both page-dissolve;
-}
-
-@keyframes page-dissolve {
-  from {
-    filter: blur(8px);
-    opacity: 0;
-  }
-  to {
-    filter: blur(0);
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*),
-  ::view-transition-old(*),
-  ::view-transition-new(*) {
-    animation: none !important;
-  }
-}
-
