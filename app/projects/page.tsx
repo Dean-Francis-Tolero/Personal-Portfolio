@@ -20,7 +20,7 @@ export default function ProjectsPage() {
           Projects
         </motion.h1>
         <motion.p variants={fadeRise} className="mt-6 max-w-xl text-lg md:text-xl font-medium text-muted">
-          A selection of things I&apos;ve built — scroll to see them.
+          A collection of projects exploring software engineering ideas.
         </motion.p>
       </motion.div>
 

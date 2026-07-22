@@ -132,6 +132,7 @@ export const projects: Project[] = [
     description:
       "A deep learning pipeline for classifying dementia (CN/AD) from 3D MRI volumes, with explainability built in.",
     tech: ["Python", "PyTorch", "NiBabel", "Captum"],
+    image: "/Dementia_MRI_Classifier_logo.jpg",
     bullets: [
       "Developed a pipeline to convert 3D MRI volumes into 2D slices, performing filtering, normalization, and augmentation for CN/AD classification.",
       "Built a custom lightweight CNN (~100K parameters) with batch normalization, dropout, and He initialization for robust binary classification on imbalanced datasets.",

@@ -62,7 +62,7 @@ function ProjectCard({ project, translate }: { project: Project; translate: Moti
         <img
           src={project.image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-left-top"
+          className="absolute inset-0 h-full w-full object-cover object-center"
         />
       ) : (
         <div className="absolute inset-0 h-full w-full bg-muted/25" />
