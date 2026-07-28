@@ -17,8 +17,7 @@ export default async function ExperiencePage() {
               </span>
             </h1>
             <p className="mt-6 max-w-xs text-lg font-medium text-muted">
-              Competitions, wins, and moments along the way — the parts of the
-              journey that don&apos;t quite fit under &quot;projects.&quot;
+              A library built from late nights, unfinished thoughts, quiet wins, and everything I became along the way.
             </p>
           </div>
 

@@ -1,9 +1,11 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring, type MotionValue } from "motion/react";
 import type { Project } from "../lib/resume_data";
 import { useScrollContainer } from "./scroll_container";
+import { SOFT_MEDIA_BOX } from "../lib/styles";
 
 // Front-loads the odd project into row one so a short list still reads as two
 // intentional rows instead of one full row and one mostly-empty one.
@@ -57,7 +59,9 @@ export function ProjectParallax({ projects }: { projects: Project[] }) {
 
 function ProjectCard({ project, translate }: { project: Project; translate: MotionValue<number> }) {
   const media = (
-    <div className="relative h-72 w-full overflow-hidden">
+    <div
+      className={`relative h-72 w-full transition-shadow duration-300 group-hover/card:shadow-[0_22px_60px_rgba(0,0,0,0.16)] ${SOFT_MEDIA_BOX}`}
+    >
       {project.image ? (
         <img
           src={project.image}
@@ -68,11 +72,9 @@ function ProjectCard({ project, translate }: { project: Project; translate: Moti
         <div className="absolute inset-0 h-full w-full bg-muted/25" />
       )}
       <div className="absolute inset-0 h-full w-full bg-foreground opacity-0 transition-opacity duration-300 group-hover/card:opacity-80" />
-      {project.link && (
-        <span className="absolute bottom-4 left-4 text-sm font-semibold text-background opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
-          View project ↗
-        </span>
-      )}
+      <span className="absolute bottom-4 left-4 text-sm font-semibold text-background opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
+        View project →
+      </span>
     </div>
   );
 
@@ -89,17 +91,10 @@ function ProjectCard({ project, translate }: { project: Project; translate: Moti
       whileHover={{ y: -12 }}
       className="group/card w-[26rem] shrink-0"
     >
-      {project.link ? (
-        <a href={project.link} target="_blank" rel="noreferrer" className="block">
-          {media}
-          {caption}
-        </a>
-      ) : (
-        <div>
-          {media}
-          {caption}
-        </div>
-      )}
+      <Link href={`/projects/${project.id}`} className="block">
+        {media}
+        {caption}
+      </Link>
     </motion.div>
   );
 }

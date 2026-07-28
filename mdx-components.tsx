@@ -1,6 +1,6 @@
 import type { MDXComponents } from "mdx/types";
 import Image, { ImageProps } from "next/image";
-import { LINK_UNDERLINE } from "./lib/styles";
+import { LINK_UNDERLINE, SOFT_MEDIA_BOX, FULL_BLEED } from "./lib/styles";
 
 const components: MDXComponents = {
   h1: ({ children }) => (
@@ -26,16 +26,49 @@ const components: MDXComponents = {
     </blockquote>
   ),
   hr: () => <hr className="border-foreground/10 my-8" />,
+  // Breaks images out wider than the text column instead of squeezing them
+  // into reading-line-width — nested <span> (not <div>) because markdown
+  // wraps standalone images in a <p>, and a block-level div there would get
+  // split out by the browser's HTML parser; span keeps it valid.
   img: ({ alt = "", ...props }) => (
-    <Image
-      alt={alt}
-      sizes="100vw"
-      width={0}
-      height={0}
-      style={{ width: "100%", height: "auto" }}
-      className="my-6"
-      {...(props as Omit<ImageProps, "alt">)}
-    />
+    <span className={`my-8 block ${FULL_BLEED}`}>
+      <span className="mx-auto block max-w-5xl px-6 md:px-10">
+        <Image
+          alt={alt}
+          sizes="100vw"
+          width={0}
+          height={0}
+          style={{ width: "100%", height: "auto" }}
+          {...(props as Omit<ImageProps, "alt">)}
+        />
+      </span>
+    </span>
+  ),
+  // Renders a LinkedIn "Embed this post" iframe. Paste the src, width, and
+  // height straight from LinkedIn's own embed snippet (post's "..." menu ->
+  // "Embed this post") — width/height set the aspect ratio, not a fixed size.
+  LinkedInEmbed: ({
+    src,
+    width = 504,
+    height = 898,
+    title = "Embedded LinkedIn post",
+  }: {
+    src: string;
+    width?: number;
+    height?: number;
+    title?: string;
+  }) => (
+    <div
+      className={`relative mx-auto my-6 w-full max-w-md ${SOFT_MEDIA_BOX}`}
+      style={{ aspectRatio: `${width} / ${height}` }}
+    >
+      <iframe
+        src={src}
+        title={title}
+        allowFullScreen
+        className="absolute inset-0 h-full w-full"
+      />
+    </div>
   ),
 };
 

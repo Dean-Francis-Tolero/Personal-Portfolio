@@ -14,7 +14,7 @@ const CONTENT_DIR = path.join(process.cwd(), "content", "experience");
 export function getExperienceSlugs(): string[] {
   return fs
     .readdirSync(CONTENT_DIR)
-    .filter((file) => file.endsWith(".mdx"))
+    .filter((file) => file.endsWith(".mdx") && !file.startsWith("_"))
     .map((file) => file.replace(/\.mdx$/, ""));
 }
 

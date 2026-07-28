@@ -5,6 +5,7 @@
   --foreground: #121212;
   --muted: #6d6d6d;
   --muted-strong: #7a7979;
+  --rule: rgba(18, 18, 18, 0.14);
 }
 
 @theme inline {
@@ -19,4 +20,129 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
+}
+
+/* Experience entry: broadsheet layout. Scoped to its own classes (not the
+   shared mdx-components.tsx h2/img/blockquote) so it doesn't affect Projects
+   write-ups, which keep the default article treatment. */
+.broadsheet-masthead {
+  text-align: center;
+  border-top: 4px double var(--foreground);
+  border-bottom: 1px solid var(--rule);
+  padding: 1.75rem 0;
+}
+
+.broadsheet-kicker {
+  display: inline-block;
+  padding-bottom: 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-strong);
+}
+
+.broadsheet-headline {
+  font-size: clamp(2.2rem, 5.5vw, 3.75rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin: 0.3rem 0 1.1rem;
+}
+
+.broadsheet-dek {
+  max-width: 38rem;
+  margin: 0 auto 1.4rem;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--muted-strong);
+}
+
+.broadsheet-byline {
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.broadsheet-body {
+  column-count: 1;
+  column-gap: 3rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+@media (min-width: 720px) {
+  .broadsheet-body {
+    column-count: 2;
+    column-rule: 1px solid var(--rule);
+  }
+}
+
+.broadsheet-body p {
+  margin: 0 0 1.15rem;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.broadsheet-body p:first-of-type::first-letter {
+  float: left;
+  font-size: 4.4rem;
+  line-height: 0.82;
+  font-weight: 700;
+  padding: 0.06em 0.09em 0 0;
+  color: var(--foreground);
+}
+
+.broadsheet-h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 2.2rem 0 0.9rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--rule);
+}
+.broadsheet-h2:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.broadsheet-pull {
+  margin: 1.8rem 0 2.2rem;
+  text-align: center;
+}
+.broadsheet-pull p {
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  text-align: center;
+  margin: 0;
+}
+.broadsheet-pull p::before,
+.broadsheet-pull p::after {
+  content: "";
+  display: block;
+  width: 2.4rem;
+  height: 2px;
+  margin: 0 auto 0.9rem;
+  background: var(--foreground);
+}
+.broadsheet-pull p::after {
+  margin: 0.9rem auto 0;
+}
+
+.broadsheet-figure {
+  display: block;
+  column-span: all;
+  margin: 1.7rem 0 2rem;
+  border: 1px solid var(--rule);
+  overflow: hidden;
 }
