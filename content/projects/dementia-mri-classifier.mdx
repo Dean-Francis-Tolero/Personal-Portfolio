@@ -1,5 +1,19 @@
 export const metadata = {
-  title: "Placeholder — Dementia MRI Classifier Paper",
+  title: "Dementia MRI Classifier",
 };
 
-Placeholder write-up. Replace this with the actual paper content — what it covers, why you wrote it, and anything else worth knowing about it.
+This project classifies Alzheimer's Disease (AD) versus Cognitively Normal (CN) brain scans from the OASIS MRI dataset. The more interesting half isn't the classifier itself, though; it's forcing the model to explain what it's looking at before trusting a single prediction.
+
+## Data and Model
+
+OASIS ships as 3D NIfTI volumes labeled by Clinical Dementia Rating. The pipeline slices each volume into 2D axial slices, filters out dark, overexposed, or low-contrast ones, and feeds the rest to `DementiaCNN`, a deliberately small custom architecture (about 100K parameters, four conv blocks, batch norm, 50% dropout). The model is kept small on purpose: light enough to train fast and reason about, which also keeps the explainability step tractable.
+
+## Explainability
+
+A classifier that simply says "AD" without explaining *why* isn't very useful here. Integrated Gradients attributes each prediction back to the input pixels, producing an attribution map of which brain regions actually drove the call.
+
+> Deletion score 0.1–0.3 for CN scans (distributed attention) versus 0.3–0.5 for AD scans (concentrated on hippocampus and ventricles), consistent with where atrophy actually shows up clinically.
+
+## Results
+
+The model lands in the 70–85% range across accuracy, precision, recall, and F1 on held-out data, depending on how many OASIS discs are used. It's reproducible end to end via fixed seeds and a single `master_pipeline.py` entry point. This is a research and coursework tool only, not intended for clinical use.

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -12,6 +13,28 @@ import { LINK_UNDERLINE } from "../../../lib/styles";
 
 export function generateStaticParams() {
   return getExperienceSlugs().map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+
+  try {
+    const { metadata } = (await import(`../../../content/experience/${slug}.mdx`)) as {
+      metadata: ExperienceMeta;
+    };
+    return {
+      title: metadata.title,
+      description: metadata.summary,
+      openGraph: { title: metadata.title, description: metadata.summary },
+      twitter: { card: "summary", title: metadata.title, description: metadata.summary },
+    };
+  } catch {
+    return {};
+  }
 }
 
 // Overrides the shared mdx-components.tsx renderers just for this page's
@@ -45,7 +68,10 @@ export default async function ExperienceEntryPage({
 }) {
   const { slug } = await params;
 
-  let mod: { default: ComponentType; metadata: ExperienceMeta };
+  let mod: {
+    default: ComponentType<{ components?: MDXComponents }>;
+    metadata: ExperienceMeta;
+  };
   try {
     mod = (await import(`../../../content/experience/${slug}.mdx`)) as typeof mod;
   } catch {

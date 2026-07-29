@@ -1,0 +1,23 @@
+export const metadata = {
+  title: "Flare: Federated Learning Phishing Defense System",
+};
+
+Flare is a graduation project built around one constraint: detect phishing emails without ever letting raw email content leave a user's device. That constraint shaped the model, the server architecture, and the browser extension that ties it together.
+
+## Architecture
+
+Flare is three cooperating pieces: a **central server** (FastAPI) hosting the global DistilBERT model and running FedAvg aggregation; a **local client server** that runs on the user's own machine (or an org's IT server), does inference, and fine-tunes on flagged emails; and a **Gmail-integrated Chrome extension** that surfaces warnings and lets users flag corrections. Only weight deltas ever cross the wire; raw email bodies never leave the device they were read on.
+
+> Pre-federated-learning baseline on the held-out test set: 96.32% accuracy, 95.35% recall, 0.9633 F1.
+
+## Aggregation
+
+The central server runs FedAvg, weighting each client's update by its local sample count and tolerating non-IID data across users. A round closes on whichever comes first: enough updates to hit the early-aggregation threshold, or the round timing out with the minimum required clients. Otherwise, it's skipped and a fresh one opens.
+
+## The Extension
+
+The Gmail content script detects an opened email, sends it to the local server for a prediction, and surfaces an in-page warning if it looks like phishing. Flag corrections feed straight back into the next round of local training, and an admin dashboard tracks flag volume and false-positive/negative trends over time.
+
+## What's Next
+
+The federated loop runs end-to-end today: flag → local train → send delta → aggregate → pull updated model. Left to build: a functional LLM fallback for low-confidence predictions and a central-server dashboard for monitoring across every connected client.

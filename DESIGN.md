@@ -49,6 +49,56 @@ proposal to raise, not something to add quietly.
   photography (rounded, hairline border, diffused shadow). `FULL_BLEED`
   breaks an element to full viewport width regardless of its parent's width —
   used sparingly, for genuine hero moments, not routine content images.
+- The Projects entry page (`app/projects/[slug]/page.tsx`) is the visual
+  counterpart to Experience's editorial broadsheet, and, unlike most of the
+  site, is deliberately horizontal rather than one vertical column. It's a
+  wider exception (`max-w-6xl px-6 md:px-10`, vs. the standard `max-w-3xl`
+  reading column), and its images are spread across three points down the
+  page instead of bunched into one block up top:
+  - **Hero**: a `md:grid-cols-12` split — title, description, and the tech/
+    repo/paper `.clay-chip` pills in a 5-column text block on the left, a
+    single claymorphism "poster" panel (`.poster-panel`/`.poster-media` in
+    `globals.css`) showing just `Project.image` in a 7-column block on the
+    right. Stacks to text-above-image on mobile. A `.poster-media-placeholder`
+    inset slot stands in for projects with no image yet.
+  - **Figures**: any extra photos/screenshots (`Project.figures` in
+    `lib/resume_data.ts` — each a `{ src, caption }` pair) render as
+    `.figure-card`s via `ProjectFigures` (`components/project_figures.tsx`)
+    — one figure per card, image and a short caption discussing what it
+    actually shows side by side (`md:grid-cols-12`, image spanning 5
+    columns, caption 7), alternating sides per figure via `md:order-*` so
+    the rhythm doesn't get monotonous. Each card is a raised claymorphism
+    panel (`box-shadow: var(--clay-raised)`) with the image itself pressed
+    into it via `.figure-media`'s `--clay-inset-sm`, like a photo mounted in
+    a frame — stronger claymorphism than the rest of the page, on purpose,
+    since this is the one place meant to feel tactile. Figures split
+    roughly in half, one group between Highlights and the write-up and one
+    after it, numbered continuously across both (`startIndex` prop) so a
+    project's figures still read as one sequence even though they're spread
+    down the page rather than bunched into one block up top. `Project.paper`
+    points at a PDF in `public/` (flat, `Title_Case_With_Underscores.pdf`,
+    matching the existing `*_logo.jpg` convention there) — if a project has
+    a paper, pull its real figures/screenshots into `figures` (with real
+    captions describing them) rather than leaving this section empty.
+  - **Highlights**: its own full-width band below the hero split (3-column
+    grid at `lg+`, since it has the whole container to use, not a narrower
+    column).
+  - **Write-up**: single-column prose (`.dossier-body`, numbered
+    `.dossier-h2` sections, chip-style inline `code`), constrained to
+    `max-w-3xl` inside the wider `max-w-6xl` article — so the page alternates
+    wide (hero/figures/highlights) and narrow (write-up) zones rather than
+    one uniform width top to bottom. Keep the write-up itself short (a few
+    sections plus one pull-quote stat callout) — the figures and highlights
+    are meant to carry most of the page's weight, not the prose.
+- **Claymorphism, monochrome only**: `--clay-raised` / `--clay-inset` (plus
+  `-sm` variants) in `globals.css` `:root` are soft dual-tone shadows — a
+  light highlight (top-left) and a dark shadow (bottom-right), both very
+  diffused — built only from `--foreground`/white-on-`--background`, no new
+  hue. Raised = a filled/interactive element (chips, badges, the poster
+  panel itself); inset = an empty/placeholder or pressed state (the "coming
+  soon" image slot, a chip's hover state). This is Projects-only for now —
+  a full-site claymorphism pass would be a real proposal to raise, not
+  something to extend quietly to other pages.
 
 ## Motion
 

@@ -1,0 +1,17 @@
+export const metadata = {
+  title: "Algorithms II Visualizer",
+};
+
+Built for a BSD 404 (Algorithms II) midterm at Canadian University Dubai. Algorithms like matrix chain multiplication are easy to implement but much harder to build real intuition for from code alone, so instead of a script that prints a result, this renders every intermediate step.
+
+## The Three Algorithms
+
+- **Matrix Chain Multiplication**: DP cost/split tables built bottom-up, with custom dimensions and three presets.
+- **Parallel Merge Sort**: a fork-join model with a recursion tree, a Gantt chart of processor utilization, and a live Brent's theorem bound (`T_p ≤ W/p + D`).
+- **Extended Euclidean Algorithm**: Bezout coefficients and modular inverse, one recursive call per card, tying into RSA/Diffie-Hellman.
+
+## Implementation
+
+Every visualization is rendered natively in SVG, with no canvas API and no charting library, plus playback controls and a pseudocode panel synced to the animation. The whole thing is one self-contained `index.html` file, with no build step, no server, and no dependencies.
+
+> Verified against known cases: `[10, 30, 5, 60]` → 4,500 scalar multiplications, plus the Bezout identity (`gcd = a*x + b*y`) across arbitrary inputs.

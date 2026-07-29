@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getExperienceEntries, formatExperienceDate } from "../../lib/experience_data";
 import { ROW_FILL_HOVER } from "../../lib/styles";
+
+export const metadata: Metadata = {
+  title: "Experience",
+  description:
+    "A library of stories from late nights, unfinished thoughts, quiet wins, and everything learned along the way.",
+};
 
 export default async function ExperiencePage() {
   const entries = await getExperienceEntries();

@@ -5,6 +5,7 @@ import Logo from "../components/logo";
 import { PageTransitionProvider } from "../components/page_transition";
 import { ScrollContainerProvider } from "../components/scroll_container";
 import localFont from "next/font/local";
+import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "../lib/site";
 
 const switzer = localFont({
   src: [
@@ -22,8 +23,26 @@ const switzer = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Dean Francis Tolero",
-  description: "Personal website of Dean Francis Tolero",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    images: [{ url: "/icon.png", width: 512, height: 512 }],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: ["/icon.png"],
+  },
 };
 
 export default function RootLayout({

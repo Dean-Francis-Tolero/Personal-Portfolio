@@ -146,3 +146,324 @@ body {
   border: 1px solid var(--rule);
   overflow: hidden;
 }
+
+/* Projects entry: claymorphism "poster" layout — a visual-first counterpart
+   to Experience's editorial broadsheet. Monochrome only (no new hue): soft
+   dual-tone shadows (light top-left, dark bottom-right) on the same
+   background/foreground pair used everywhere else, giving raised (clay-*)
+   or inset (placeholder tiles, pressed chip state) depth without touching
+   the palette. Scoped to its own classes so it doesn't affect the
+   broadsheet-* rules above or the shared mdx-components.tsx defaults. */
+:root {
+  --clay-raised: 9px 9px 20px rgba(18, 18, 18, 0.14), -9px -9px 20px rgba(255, 255, 255, 0.75);
+  --clay-raised-sm: 4px 4px 9px rgba(18, 18, 18, 0.14), -4px -4px 9px rgba(255, 255, 255, 0.75);
+  --clay-inset: inset 6px 6px 14px rgba(18, 18, 18, 0.1), inset -6px -6px 14px rgba(255, 255, 255, 0.6);
+  --clay-inset-sm: inset 3px 3px 7px rgba(18, 18, 18, 0.1), inset -3px -3px 7px rgba(255, 255, 255, 0.6);
+}
+
+.clay-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1.15rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: var(--clay-raised-sm);
+}
+a.clay-chip {
+  transition: box-shadow 0.25s ease;
+}
+a.clay-chip:hover,
+a.clay-chip:focus-visible {
+  box-shadow: var(--clay-inset-sm);
+}
+
+.clay-badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--clay-raised-sm);
+}
+
+.poster-panel {
+  border-radius: 2rem;
+  overflow: hidden;
+  background: var(--background);
+  box-shadow: var(--clay-raised);
+}
+
+/* .poster-media and .figure-media are <button>s (so their image is
+   click-to-enlarge) — reset button chrome back to a plain block. */
+.poster-media,
+.figure-media {
+  display: block;
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+}
+
+.poster-media {
+  height: 20rem;
+}
+@media (min-width: 768px) {
+  .poster-media {
+    height: 30rem;
+  }
+}
+.poster-media img,
+.poster-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-play-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.media-play-icon::after {
+  content: "";
+  width: 0;
+  height: 0;
+  margin-left: 0.15em;
+  border-style: solid;
+  border-width: 0.4rem 0 0.4rem 0.65rem;
+  border-color: transparent transparent transparent var(--background);
+  filter: drop-shadow(0 0 3px rgba(18, 18, 18, 0.5));
+}
+
+/* Small "enlarge" hint, revealed on hover/focus of a clickable media tile —
+   the same reveal-on-hover vocabulary as the project card's "View project
+   →" hint elsewhere on the site. */
+.media-expand-hint {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  background: var(--foreground);
+  color: var(--background);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.media-expand-hint svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.poster-media:hover .media-expand-hint,
+.poster-media:focus-visible .media-expand-hint,
+.figure-media:hover .media-expand-hint,
+.figure-media:focus-visible .media-expand-hint {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Full-screen image/video viewer. Deliberately does NOT stretch media
+   past its natural size (width/height: auto within a max-width/max-height
+   cap) — upscaling a small source past its native resolution is what was
+   making enlarged screenshots look blurry, so a smaller source just
+   renders at true size, centered, instead of being blown up. */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(18, 18, 18, 0.85);
+}
+.lightbox-overlay img,
+.lightbox-overlay video {
+  width: auto;
+  height: auto;
+  max-width: 92vw;
+  max-height: 88vh;
+  border-radius: 1rem;
+  box-shadow: var(--clay-raised);
+  cursor: zoom-out;
+}
+.lightbox-close {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--background);
+  background: var(--foreground);
+  box-shadow: var(--clay-raised-sm);
+}
+
+/* A single figure with its own caption: image on one side, a short
+   discussion of what it shows on the other, alternating sides down the
+   page so a project's figures each get their own section (not bunched
+   into one anonymous strip) while keeping some horizontal composition.
+   The outer card is raised off the page; the image itself sits pressed
+   into it (clay-inset), like a photo mounted in a frame. */
+.figure-card {
+  display: grid;
+  gap: 1.25rem;
+  border-radius: 2rem;
+  padding: 1.25rem;
+  background: var(--background);
+  box-shadow: var(--clay-raised);
+}
+@media (min-width: 768px) {
+  .figure-card {
+    grid-template-columns: repeat(12, 1fr);
+    align-items: center;
+    gap: 2rem;
+    padding: 1.75rem 2rem;
+  }
+}
+
+.figure-media {
+  height: 12rem;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: var(--clay-inset-sm);
+}
+@media (min-width: 768px) {
+  .figure-media {
+    height: 14rem;
+  }
+}
+.figure-media img,
+.figure-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.poster-media-placeholder {
+  display: flex;
+  height: 16rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 1rem;
+  border-radius: 1.5rem;
+  box-shadow: var(--clay-inset);
+}
+@media (min-width: 768px) {
+  .poster-media-placeholder {
+    height: 22rem;
+  }
+}
+.poster-media-placeholder span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Highlights band: a full-width horizontal section on its own (not nested
+   in the poster panel), so it can run 3-wide once it has the whole page
+   width to work with instead of the panel's narrower column. */
+.poster-captions-kicker {
+  display: block;
+  margin-bottom: 1.1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.poster-captions ol {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 640px) {
+  .poster-captions ol {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.1rem 1.75rem;
+  }
+}
+@media (min-width: 1024px) {
+  .poster-captions ol {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.poster-caption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.dossier-body {
+  counter-reset: dossier-section;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+.dossier-h2 {
+  counter-increment: dossier-section;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 2.6rem 0 1.1rem;
+}
+.dossier-h2:first-child {
+  margin-top: 0;
+}
+.dossier-h2::before {
+  content: counter(dossier-section, decimal-leading-zero);
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--clay-raised-sm);
+}
+
+.dossier-code {
+  padding: 0.15em 0.5em;
+  font-size: 0.9em;
+  border-radius: 8px;
+  box-shadow: var(--clay-inset-sm);
+}

@@ -1,0 +1,15 @@
+export const metadata = {
+  title: "RFID Attendance Scanner",
+};
+
+This project started as a practical problem rather than a portfolio piece: a school needed to track attendance without a teacher manually taking roll call, so I built and sold them the system that solved it.
+
+## The System
+
+Students tap an RFID card at a WiFi-connected reader, and the scan lands in real time on two separate portals: a **teacher view** with live attendance and historical reports, and a **parent view** scoped to just their own child's check-in/check-out. Both update over WebSocket, not polling.
+
+## Stack
+
+Node.js and Express power the API, MySQL stores records, and JWT with bcrypt handles auth, with the two portals kept genuinely separate at the auth layer rather than just hidden behind different UI. The RFID readers connect over WiFi rather than wired serial, which is what made deploying the system in a school possible without running new cabling.
+
+> Built, deployed, and sold to a school for approximately 1,000 AED: the first time a project of mine went from a personal build to one a real customer uses daily.
