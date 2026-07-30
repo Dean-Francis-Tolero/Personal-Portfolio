@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useScrollContainer } from "./scroll_container";
+import { useScrollLock } from "./scroll_container";
 
 type LightboxMedia = {
   src: string;
@@ -33,7 +33,6 @@ export function useLightbox(): LightboxContextValue {
 export function LightboxProvider({ children }: { children: ReactNode }) {
   const [media, setMedia] = useState<LightboxMedia | null>(null);
   const reduceMotion = useReducedMotion();
-  const scrollContainerRef = useScrollContainer();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<Element | null>(null);
 
@@ -46,11 +45,13 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
   );
   const close = useCallback(() => setMedia(null), []);
 
-  // Escape to close, lock the page's scroll while open (the overlay sits on
-  // top visually, but Lenis binds to the scroll container regardless, so
-  // without this the page behind it still scrolls), and move focus to the
-  // close button so keyboard users land inside the dialog immediately —
-  // restoring focus to whichever figure/poster button opened it on close.
+  // The overlay sits on top visually, but Lenis binds to the scroll
+  // container regardless, so without this the page behind it still scrolls.
+  useScrollLock(!!media);
+
+  // Escape to close, and move focus to the close button so keyboard users
+  // land inside the dialog immediately — restoring focus to whichever
+  // figure/poster button opened it on close.
   useEffect(() => {
     if (!media) return;
     const onKey = (e: KeyboardEvent) => {
@@ -58,18 +59,13 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
     };
     document.addEventListener("keydown", onKey);
 
-    const container = scrollContainerRef?.current;
-    const previousOverflow = container?.style.overflow;
-    if (container) container.style.overflow = "hidden";
-
     closeButtonRef.current?.focus();
 
     return () => {
       document.removeEventListener("keydown", onKey);
-      if (container) container.style.overflow = previousOverflow ?? "";
       if (triggerRef.current instanceof HTMLElement) triggerRef.current.focus();
     };
-  }, [media, close, scrollContainerRef]);
+  }, [media, close]);
 
   const backdropMotion = reduceMotion
     ? {}

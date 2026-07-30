@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { toMedia } from "../lib/media";
 import type { ProjectFigure } from "../lib/resume_data";
 import { useLightbox, ExpandHint } from "./lightbox";
@@ -34,7 +35,7 @@ export function ProjectFigures({
               {media.isVideo ? (
                 <video src={media.src} autoPlay loop muted playsInline />
               ) : (
-                <img src={media.src} alt="" />
+                <Image src={media.src} alt="" fill sizes="(min-width: 768px) 40vw, 100vw" />
               )}
               {media.isVideo && <span className="media-play-icon" aria-hidden="true" />}
               <ExpandHint />

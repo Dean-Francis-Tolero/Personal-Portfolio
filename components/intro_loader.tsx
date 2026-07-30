@@ -34,7 +34,10 @@ export default function IntroLoader() {
       return;
     }
 
-    setVisible(true);
+    // Deferred a frame (rather than set synchronously here) so the state
+    // update happens inside a callback, not as a bare statement in the
+    // effect body — see react-hooks/set-state-in-effect.
+    const frame = requestAnimationFrame(() => setVisible(true));
     const start = performance.now();
 
     const interval = setInterval(() => {
@@ -56,7 +59,10 @@ export default function IntroLoader() {
       }
     }, TICK_INTERVAL);
 
-    return () => clearInterval(interval);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearInterval(interval);
+    };
   }, [reduceMotion]);
 
   if (!visible) return null;

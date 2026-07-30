@@ -1,16 +1,45 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, type ReactNode, type RefObject } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const ScrollContainerContext = createContext<RefObject<HTMLElement | null> | null>(null);
+type ScrollContainerContextValue = {
+  ref: RefObject<HTMLElement | null>;
+  setLocked: (locked: boolean) => void;
+};
+
+const ScrollContainerContext = createContext<ScrollContainerContextValue | null>(null);
 
 export function useScrollContainer() {
-  return useContext(ScrollContainerContext);
+  return useContext(ScrollContainerContext)?.ref ?? null;
+}
+
+// Locks/unlocks the scroll container's overflow while `locked` is true —
+// shared by anything that needs to freeze background scroll behind an
+// overlay (the mobile nav drawer, the lightbox). Drives a class toggle in
+// ScrollContainerProvider's own render rather than reaching into the
+// container's DOM node and mutating its style directly, so nothing outside
+// this module ever mutates a ref/context value returned by a hook.
+export function useScrollLock(locked: boolean) {
+  const ctx = useContext(ScrollContainerContext);
+
+  useEffect(() => {
+    ctx?.setLocked(locked);
+    return () => ctx?.setLocked(false);
+  }, [locked, ctx]);
 }
 
 export function ScrollContainerProvider({
@@ -22,6 +51,7 @@ export function ScrollContainerProvider({
 }) {
   const ref = useRef<HTMLElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const [locked, setLocked] = useState(false);
 
   useEffect(() => {
     const wrapper = ref.current;
@@ -56,9 +86,14 @@ export function ScrollContainerProvider({
     };
   }, []);
 
+  const contextValue = useMemo(() => ({ ref, setLocked }), []);
+
   return (
-    <ScrollContainerContext.Provider value={ref}>
-      <main ref={ref as RefObject<HTMLElement>} className={`relative ${className ?? ""}`}>
+    <ScrollContainerContext.Provider value={contextValue}>
+      <main
+        ref={ref as RefObject<HTMLElement>}
+        className={`relative ${className ?? ""} ${locked ? "!overflow-hidden" : ""}`}
+      >
         <div ref={contentRef}>{children}</div>
       </main>
     </ScrollContainerContext.Provider>

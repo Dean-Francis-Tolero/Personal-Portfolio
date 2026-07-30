@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { LINK_UNDERLINE } from "../lib/styles";
 import { useNavLinkClick } from "./page_transition";
-import { useScrollContainer } from "./scroll_container";
+import { useScrollLock } from "./scroll_container";
 
 const NAV_ITEMS = [
   { href: "/", label: "HOME" },
@@ -52,29 +52,29 @@ export default function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const reduceMotion = useReducedMotion();
-  const scrollContainerRef = useScrollContainer();
 
-  // Close on route change, Escape, and lock background scroll while open.
-  useEffect(() => {
+  // Close on route change — adjusted during render (React's documented
+  // pattern for resetting state when a prop changes) rather than in an
+  // effect, since setting state synchronously inside an effect body causes
+  // an extra cascading render.
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setOpen(false);
-  }, [pathname]);
+  }
 
+  // Lock background scroll while open.
+  useScrollLock(open);
+
+  // Close on Escape.
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
     };
     document.addEventListener("keydown", onKeyDown);
-
-    const container = scrollContainerRef?.current;
-    const previousOverflow = container?.style.overflow;
-    if (container) container.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      if (container) container.style.overflow = previousOverflow ?? "";
-    };
-  }, [open, scrollContainerRef]);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   return (
     <>

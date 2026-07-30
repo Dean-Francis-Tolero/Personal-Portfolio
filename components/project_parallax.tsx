@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring, type MotionValue } from "motion/react";
 import type { Project } from "../lib/resume_data";
@@ -63,10 +64,12 @@ function ProjectCard({ project, translate }: { project: Project; translate: Moti
       className={`relative h-72 w-full transition-shadow duration-300 group-hover/card:shadow-[0_22px_60px_rgba(0,0,0,0.16)] ${SOFT_MEDIA_BOX}`}
     >
       {project.image ? (
-        <img
+        <Image
           src={project.image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-center"
+          fill
+          sizes="416px"
+          className="object-cover object-center"
         />
       ) : (
         <div className="absolute inset-0 h-full w-full bg-muted/25" />

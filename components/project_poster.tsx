@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { toMedia } from "../lib/media";
 import { useLightbox, ExpandHint } from "./lightbox";
 
@@ -19,7 +20,7 @@ export function ProjectPoster({ image }: { image?: string }) {
           {media.isVideo ? (
             <video src={media.src} autoPlay loop muted playsInline />
           ) : (
-            <img src={media.src} alt="" />
+            <Image src={media.src} alt="" fill sizes="(min-width: 768px) 60vw, 100vw" />
           )}
           <ExpandHint />
         </button>
