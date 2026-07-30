@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Nav from "../components/nav";
 import Logo from "../components/logo";
+import IntroLoader from "../components/intro_loader";
 import { PageTransitionProvider } from "../components/page_transition";
 import { ScrollContainerProvider } from "../components/scroll_container";
 import localFont from "next/font/local";
@@ -53,6 +54,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${switzer.variable} h-full antialiased`}>
       <body className="min-h-screen h-screen overflow-hidden">
+
+        <IntroLoader />
 
         <PageTransitionProvider>
           <Logo />

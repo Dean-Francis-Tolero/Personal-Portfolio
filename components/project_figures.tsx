@@ -20,15 +20,17 @@ export function ProjectFigures({
       {figures.map((figure, i) => {
         const media = toMedia(figure.src);
         const reversed = i % 2 === 1;
+        const badge = String(startIndex + i + 1).padStart(2, "0");
 
         return (
-          <div key={figure.src} className="figure-card">
-            <button
-              type="button"
-              className={`figure-media md:col-span-5${reversed ? " md:order-2" : ""}`}
-              onClick={() => open(media.src, media.isVideo)}
-              aria-label="Enlarge image"
-            >
+          <button
+            key={figure.src}
+            type="button"
+            className="figure-card"
+            onClick={() => open(media.src, media.isVideo, figure.caption, badge)}
+            aria-label={`Enlarge figure ${badge}`}
+          >
+            <div className={`figure-media md:col-span-5${reversed ? " md:order-2" : ""}`}>
               {media.isVideo ? (
                 <video src={media.src} autoPlay loop muted playsInline />
               ) : (
@@ -36,18 +38,16 @@ export function ProjectFigures({
               )}
               {media.isVideo && <span className="media-play-icon" aria-hidden="true" />}
               <ExpandHint />
-            </button>
+            </div>
             <div
               className={`flex items-start gap-4 md:col-span-7${reversed ? " md:order-1" : ""}`}
             >
-              <span className="clay-badge shrink-0">
-                {String(startIndex + i + 1).padStart(2, "0")}
-              </span>
+              <span className="clay-badge shrink-0">{badge}</span>
               <p className="text-base md:text-lg font-medium text-muted-strong leading-relaxed">
                 {figure.caption}
               </p>
             </div>
-          </div>
+          </button>
         );
       })}
     </div>

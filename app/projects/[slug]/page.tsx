@@ -117,7 +117,7 @@ export default async function ProjectEntryPage({
                       rel="noreferrer"
                       className="clay-chip"
                     >
-                      View on GitHub ↗
+                      View on GitHub
                     </a>
                   )}
                   {project.paper && (
@@ -127,7 +127,7 @@ export default async function ProjectEntryPage({
                       rel="noreferrer"
                       className="clay-chip"
                     >
-                      Read the Paper ↗
+                      Read the Paper
                     </a>
                   )}
                 </div>

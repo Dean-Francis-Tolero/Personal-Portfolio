@@ -43,7 +43,7 @@ export type Project = {
   // extra figures (diagrams, screenshots, charts) discussed one at a time
   // further down the project entry page. Entirely optional.
   figures?: ProjectFigure[];
-  // path to a PDF write-up/paper in public/ (e.g. "/FLARE_Paper.pdf"),
+  // path to a PDF write-up/paper in public/ (e.g. "/FLARE/Paper.pdf"),
   // rendered as a "Read the Paper" chip next to the GitHub link.
   paper?: string;
 };
@@ -133,36 +133,36 @@ export const projects: Project[] = [
     description:
       "A federated learning system for phishing email detection, aggregating client model updates without transmitting raw data.",
     tech: ["Python", "PyTorch", "FastAPI", "SQLAlchemy", "Chrome Extension (MV3)"],
-    image: "/FLARE_logo.jpg",
+    image: "/FLARE/logo.jpg",
     figures: [
       {
-        src: "/FLARE_Architecture.png",
+        src: "/FLARE/Architecture.png",
         caption:
           "The four layers of the system: a JavaScript/Chart.js frontend feeding a Chrome extension, a FastAPI backend, the DistilBERT model layer, and a SQLite database behind SQLAlchemy.",
       },
       {
-        src: "/FLARE_System_Diagram.png",
+        src: "/FLARE/System_Diagram.png",
         caption:
           "How updates flow: each browser extension reports to a local FL client, which pushes weight deltas up to the central federated learning server, while corporate deployments route through a shared FL web server first.",
       },
       {
-        src: "/FLARE_Admin_Overview.png",
+        src: "/FLARE/Admin_Overview.png",
         caption:
           "The admin dashboard's overview page, tracking false positives and false negatives across all users over time.",
       },
       {
-        src: "/FLARE_Flagged_Emails.png",
+        src: "/FLARE/Flagged_Emails.png",
         caption:
           "The flagged-emails table: every email a user has flagged for retraining, with its confidence score and current label.",
       },
       {
-        src: "/FLARE_Latency_Chart.png",
+        src: "/FLARE/Latency_Chart.png",
         caption:
           "Response time for the /predict endpoint, consistently under 5ms for short emails and under 15ms for long ones.",
       },
     ],
     link: "https://github.com/Dean-Francis-Tolero/Flare",
-    paper: "/FLARE_Paper.pdf",
+    paper: "/FLARE/Paper.pdf",
     bullets: [
       "Fine-tuned DistilBERT for phishing email detection, achieving 96.3% accuracy and 0.963 F1 on a held-out test set.",
       "Implemented FedAvg in a custom FastAPI aggregation server, weighting client updates by local sample count and handling non-IID data distributions across clients.",
@@ -177,31 +177,31 @@ export const projects: Project[] = [
     description:
       "A deep learning pipeline for classifying dementia (CN/AD) from 3D MRI volumes, with explainability built in.",
     tech: ["Python", "PyTorch", "NiBabel", "Captum"],
-    image: "/Dementia_MRI_Classifier_logo.jpg",
+    image: "/Dementia_MRI_Classifier/logo.jpg",
     figures: [
       {
-        src: "/Dementia_MRI_Explainability.png",
+        src: "/Dementia_MRI_Classifier/Explainability.png",
         caption:
           "Integrated Gradients output for a single MRI slice: the original scan, its attribution map, an overlay of the most influential regions, and the resulting prediction confidence.",
       },
       {
-        src: "/Dementia_MRI_MMSE_vs_Volume.png",
+        src: "/Dementia_MRI_Classifier/MMSE_vs_Volume.png",
         caption:
           "Cognitive test scores (MMSE) plotted against normalized brain volume. AD subjects cluster at lower volume and lower scores, matching where atrophy would be expected.",
       },
       {
-        src: "/Dementia_MRI_Age_Distribution.png",
+        src: "/Dementia_MRI_Classifier/Age_Distribution.png",
         caption:
           "Age distribution of the OASIS subjects used for training, split by diagnosis.",
       },
       {
-        src: "/Dementia_MRI_Loss_Curve.png",
+        src: "/Dementia_MRI_Classifier/Loss_Curve.png",
         caption:
           "Training and validation loss over 25 epochs, showing where the model starts to overfit before early stopping steps in.",
       },
     ],
     link: "https://github.com/Dean-Francis-Tolero/dementia-mri-classifier",
-    paper: "/Dementia_MRI_Classifier_Paper.pdf",
+    paper: "/Dementia_MRI_Classifier/Paper.pdf",
     bullets: [
       "Developed a pipeline to convert 3D MRI volumes into 2D slices, performing filtering, normalization, and augmentation for CN/AD classification.",
       "Built a custom lightweight CNN (~100K parameters) with batch normalization, dropout, and He initialization for robust binary classification on imbalanced datasets.",
@@ -215,7 +215,7 @@ export const projects: Project[] = [
     description:
       "A web-based RFID attendance system built and sold to a school, with real-time tracking and parent notifications.",
     tech: ["JavaScript", "MySQL", "Node.js", "Express.js"],
-    image: "/RFID_Attendance_Scanner_logo.jpg",
+    image: "/RFID_Attendance_Scanner/logo.jpg",
     link: "https://github.com/Dean-Francis-Tolero/RFID-Attendance-Scanner",
     bullets: [
       "Successfully developed and sold a web-based RFID attendance system for a school, generating approximately 1,000 AED in revenue.",
@@ -230,7 +230,7 @@ export const projects: Project[] = [
     description:
       "An interactive, single-page visualizer covering three Algorithms II topics, built for a university midterm with step-by-step animation and pseudocode highlighting.",
     tech: ["JavaScript", "HTML", "SVG"],
-    image: "/Algorithms_II_logo.jpg",
+    image: "/Algorithms_II/logo.jpg",
     link: "https://github.com/Dean-Francis-Tolero/Algorithms",
     bullets: [
       "Built three fully animated visualizations (Matrix Chain Multiplication using dynamic programming, Parallel Merge Sort using a fork-join model, and the Extended Euclidean Algorithm), each with step-by-step playback and pseudocode highlighting.",

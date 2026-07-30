@@ -157,6 +157,7 @@ body {
 :root {
   --clay-raised: 9px 9px 20px rgba(18, 18, 18, 0.14), -9px -9px 20px rgba(255, 255, 255, 0.75);
   --clay-raised-sm: 4px 4px 9px rgba(18, 18, 18, 0.14), -4px -4px 9px rgba(255, 255, 255, 0.75);
+  --clay-raised-soft: 8px 8px 32px rgba(18, 18, 18, 0.1), -8px -8px 32px rgba(255, 255, 255, 0.55);
   --clay-inset: inset 6px 6px 14px rgba(18, 18, 18, 0.1), inset -6px -6px 14px rgba(255, 255, 255, 0.6);
   --clay-inset-sm: inset 3px 3px 7px rgba(18, 18, 18, 0.1), inset -3px -3px 7px rgba(255, 255, 255, 0.6);
 }
@@ -200,10 +201,11 @@ a.clay-chip:focus-visible {
   box-shadow: var(--clay-raised);
 }
 
-/* .poster-media and .figure-media are <button>s (so their image is
-   click-to-enlarge) — reset button chrome back to a plain block. */
-.poster-media,
-.figure-media {
+/* .poster-media is a <button> itself (so its image is click-to-enlarge) —
+   reset button chrome back to a plain block. .figure-media is a plain div;
+   its enclosing .figure-card is the button (see below), since the whole
+   figure section — image and caption both — is the click target. */
+.poster-media {
   display: block;
   position: relative;
   padding: 0;
@@ -213,6 +215,11 @@ a.clay-chip:focus-visible {
   font: inherit;
   color: inherit;
   text-align: left;
+}
+
+.figure-media {
+  display: block;
+  position: relative;
 }
 
 .poster-media {
@@ -274,8 +281,8 @@ a.clay-chip:focus-visible {
 }
 .poster-media:hover .media-expand-hint,
 .poster-media:focus-visible .media-expand-hint,
-.figure-media:hover .media-expand-hint,
-.figure-media:focus-visible .media-expand-hint {
+.figure-card:hover .media-expand-hint,
+.figure-card:focus-visible .media-expand-hint {
   opacity: 1;
   transform: scale(1);
 }
@@ -293,7 +300,7 @@ a.clay-chip:focus-visible {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: rgba(18, 18, 18, 0.85);
+  background: rgba(18, 18, 18, 0.55);
 }
 .lightbox-overlay img,
 .lightbox-overlay video {
@@ -302,9 +309,93 @@ a.clay-chip:focus-visible {
   max-width: 92vw;
   max-height: 88vh;
   border-radius: 1rem;
-  box-shadow: var(--clay-raised);
   cursor: zoom-out;
 }
+/* Figure lightbox variant: instead of just the bare image, the full-scale
+   image sits inside its own raised claymorphism panel next to the figure's
+   caption — a bigger, modal-scale version of the .figure-card it was
+   clicked from, rather than a plain image viewer. The panel itself carries
+   the shadow (--clay-raised-soft: wider blur, lower opacity than the base
+   token, since at this scale the standard --clay-raised reads as a hard,
+   dim smudge) — the image/media box inside it stays flat, no shadow of its
+   own, so depth reads once (on the panel) instead of nested on both. */
+.lightbox-clay {
+  position: relative;
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 72rem;
+  max-height: 88vh;
+  padding: 1.5rem;
+  border-radius: 2rem;
+  background: var(--background);
+  box-shadow: var(--clay-raised-soft);
+  overflow-y: auto;
+  cursor: default;
+}
+@media (min-width: 768px) {
+  .lightbox-clay {
+    grid-template-columns: 3fr auto 2fr;
+    align-items: center;
+    gap: 2rem;
+    padding: 2.5rem;
+  }
+}
+
+.lightbox-clay-media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 16rem;
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+@media (min-width: 768px) {
+  .lightbox-clay-media {
+    min-height: 32rem;
+  }
+}
+.lightbox-clay-media img,
+.lightbox-clay-media video {
+  width: 100%;
+  height: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+}
+
+/* Gray claymorphism groove between image and text — a recessed channel
+   (dark+light dual shadow, same as --clay-inset) rather than a flat line,
+   so the divider stays in the same soft/pressed visual language as the
+   rest of the panel. Horizontal when the layout is stacked (mobile),
+   vertical once media and text sit side by side (md+). */
+.lightbox-clay-divider {
+  width: 100%;
+  height: 2px;
+  border-radius: 9999px;
+  background: var(--rule);
+  box-shadow: var(--clay-inset-sm);
+}
+@media (min-width: 768px) {
+  .lightbox-clay-divider {
+    align-self: stretch;
+    width: 2px;
+    height: auto;
+  }
+}
+
+.lightbox-clay-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.lightbox-clay-text p {
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--muted-strong);
+}
+
 .lightbox-close {
   position: fixed;
   top: 1.5rem;
@@ -327,14 +418,28 @@ a.clay-chip:focus-visible {
    page so a project's figures each get their own section (not bunched
    into one anonymous strip) while keeping some horizontal composition.
    The outer card is raised off the page; the image itself sits pressed
-   into it (clay-inset), like a photo mounted in a frame. */
+   into it (clay-inset), like a photo mounted in a frame. The whole card
+   is a <button> — clicking anywhere in the section (image or caption)
+   opens the full-scale claymorphism lightbox — so reset button chrome
+   and add a hover/focus lift to signal it's clickable. */
 .figure-card {
   display: grid;
+  width: 100%;
   gap: 1.25rem;
+  border: 0;
   border-radius: 2rem;
   padding: 1.25rem;
   background: var(--background);
   box-shadow: var(--clay-raised);
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.figure-card:hover,
+.figure-card:focus-visible {
+  transform: translateY(-2px);
 }
 @media (min-width: 768px) {
   .figure-card {

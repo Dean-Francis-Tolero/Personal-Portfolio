@@ -72,9 +72,9 @@ export default function IntroLoader() {
           setVisible(false);
         }
       }}
-      className="fixed inset-0 z-[100] flex items-end bg-background px-6 pb-6"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-background"
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col items-center gap-3">
         <span className="text-[72px] sm:text-[96px] font-bold tabular-nums leading-none">
           {String(count).padStart(2, "0")}
         </span>

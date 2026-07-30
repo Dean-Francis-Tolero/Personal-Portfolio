@@ -71,15 +71,22 @@ proposal to raise, not something to add quietly.
     panel (`box-shadow: var(--clay-raised)`) with the image itself pressed
     into it via `.figure-media`'s `--clay-inset-sm`, like a photo mounted in
     a frame — stronger claymorphism than the rest of the page, on purpose,
-    since this is the one place meant to feel tactile. Figures split
+    since this is the one place meant to feel tactile. The whole card is the
+    click target (`.figure-card` is a `<button>`, not just the image) and
+    opens `components/lightbox.tsx`'s claymorphism modal variant
+    (`.lightbox-clay`) — the figure at full scale (`object-fit: contain`,
+    not cropped) in its own raised clay-inset panel next to its caption text,
+    versus the plain centered-image viewer `ProjectPoster`'s hero image still
+    uses (no caption to show, so no text-beside-image layout needed there).
+    Figures split
     roughly in half, one group between Highlights and the write-up and one
     after it, numbered continuously across both (`startIndex` prop) so a
     project's figures still read as one sequence even though they're spread
     down the page rather than bunched into one block up top. `Project.paper`
-    points at a PDF in `public/` (flat, `Title_Case_With_Underscores.pdf`,
-    matching the existing `*_logo.jpg` convention there) — if a project has
-    a paper, pull its real figures/screenshots into `figures` (with real
-    captions describing them) rather than leaving this section empty.
+    points at a PDF in the project's own `public/` subfolder (e.g.
+    `/FLARE/Paper.pdf`) — if a project has a paper, pull its real
+    figures/screenshots into `figures` (with real captions describing them)
+    rather than leaving this section empty.
   - **Highlights**: its own full-width band below the hero split (3-column
     grid at `lg+`, since it has the whole container to use, not a narrower
     column).
@@ -100,8 +107,32 @@ proposal to raise, not something to add quietly.
   a full-site claymorphism pass would be a real proposal to raise, not
   something to extend quietly to other pages.
 
+## Static assets (`public/`)
+
+Grouped by subject, not flat. Each project/post gets its own folder holding
+every asset for that subject — logo, figures, paper — with the shared prefix
+dropped since the folder name already carries it (`public/FLARE/logo.jpg`,
+`public/FLARE/Architecture.png`, `public/FLARE/Paper.pdf`, not
+`FLARE_logo.jpg` / `FLARE_Architecture.png` at the top level). Matches how
+`public/blog/<slug>/` already worked for blog post figures — project assets
+under `public/<ProjectName>/` follow the same idea. Referenced from
+`lib/resume_data.ts` (`Project.image`/`figures`/`paper`) and MDX files as
+absolute paths (`/FLARE/logo.jpg`). Assets that aren't tied to one
+project/post (e.g. `Dean_Francis_Tolero_Resume.pdf`) stay at the `public/`
+top level. Next.js special files (`favicon.ico`, `icon.png`,
+`apple-icon.png`) live in `app/`, not `public/` — untouched by this
+convention.
+
 ## Motion
 
+- **Initial load**: `components/intro_loader.tsx` — a centered full-screen
+  counter (0→100, `tabular-nums`, with its thin progress rule underneath)
+  over `bg-background` that wipe-exits (`clipPath: inset()`, left→right)
+  once, mounted in `app/layout.tsx` above
+  `PageTransitionProvider`. Gated by `sessionStorage["intro-shown"]` so it
+  only plays once per browser session (not on every route change — those are
+  handled by the page-transition curtain below). Fully skipped when
+  `useReducedMotion()` is true, same as the page-transition curtain.
 - **Page transitions**: `components/page_transition.tsx` — a Framer Motion
   "curtain" (`bg-foreground` panel) covers the outgoing page, the route swaps
   underneath it, then it slides away to reveal the new page. Timing lives in
