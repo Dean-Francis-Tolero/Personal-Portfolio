@@ -76,6 +76,15 @@ export default function Nav() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
+  // The Projects entry page ("slug" template) already has its own
+  // "← Projects" back link built into the hero, and its full-screen
+  // (min-h-dvh) sections are tuned to the viewport — the fixed nav's
+  // vertical link list was colliding with that layout in the top-right
+  // corner. Hidden here rather than only skipping its render in
+  // app/layout.tsx, since usePathname() is already wired up. Logo (home
+  // link) stays — it's a single small mark, not a collision risk.
+  if (pathname.startsWith("/projects/")) return null;
+
   return (
     <>
       <nav aria-label="Primary" className="fixed top-6 right-6 z-50">

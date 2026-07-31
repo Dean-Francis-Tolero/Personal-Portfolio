@@ -13,11 +13,13 @@ import {
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Observer } from "gsap/Observer";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, Observer);
 
 type ScrollContainerContextValue = {
   ref: RefObject<HTMLElement | null>;
+  lenisRef: RefObject<Lenis | null>;
   setLocked: (locked: boolean) => void;
 };
 
@@ -25,6 +27,14 @@ const ScrollContainerContext = createContext<ScrollContainerContextValue | null>
 
 export function useScrollContainer() {
   return useContext(ScrollContainerContext)?.ref ?? null;
+}
+
+// The Lenis instance itself — for anything that needs to drive scroll
+// programmatically (e.g. the Projects entry page's wheel-jacked slide deck)
+// rather than just reading the wrapper element, since a plain native
+// `scrollTo` would fight Lenis's own smoothing/state.
+export function useLenis() {
+  return useContext(ScrollContainerContext)?.lenisRef ?? null;
 }
 
 // Locks/unlocks the scroll container's overflow while `locked` is true —
@@ -51,6 +61,7 @@ export function ScrollContainerProvider({
 }) {
   const ref = useRef<HTMLElement | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const lenisRef = useRef<Lenis | null>(null);
   const [locked, setLocked] = useState(false);
 
   useEffect(() => {
@@ -62,6 +73,7 @@ export function ScrollContainerProvider({
     // box never changes size), while content sizes naturally to whatever page is mounted inside
     // it — Lenis needs content's own box to actually change size to know a recompute is due.
     const lenis = new Lenis({ wrapper, content });
+    lenisRef.current = lenis;
 
     lenis.on("scroll", ScrollTrigger.update);
 
@@ -83,10 +95,11 @@ export function ScrollContainerProvider({
       resizeObserver.disconnect();
       gsap.ticker.remove(tickerCallback);
       lenis.destroy();
+      lenisRef.current = null;
     };
   }, []);
 
-  const contextValue = useMemo(() => ({ ref, setLocked }), []);
+  const contextValue = useMemo(() => ({ ref, lenisRef, setLocked }), []);
 
   return (
     <ScrollContainerContext.Provider value={contextValue}>

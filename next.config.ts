@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   experimental: {
     viewTransition: true,
   },
+  allowedDevOrigins: ["192.168.1.68"],
 };
 
 const withMDX = createMDX({});

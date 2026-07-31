@@ -49,63 +49,144 @@ proposal to raise, not something to add quietly.
   photography (rounded, hairline border, diffused shadow). `FULL_BLEED`
   breaks an element to full viewport width regardless of its parent's width —
   used sparingly, for genuine hero moments, not routine content images.
-- The Projects entry page (`app/projects/[slug]/page.tsx`) is the visual
-  counterpart to Experience's editorial broadsheet, and, unlike most of the
-  site, is deliberately horizontal rather than one vertical column. It's a
-  wider exception (`max-w-6xl px-6 md:px-10`, vs. the standard `max-w-3xl`
-  reading column), and its images are spread across three points down the
-  page instead of bunched into one block up top:
-  - **Hero**: a `md:grid-cols-12` split — title, description, and the tech/
-    repo/paper `.clay-chip` pills in a 5-column text block on the left, a
-    single claymorphism "poster" panel (`.poster-panel`/`.poster-media` in
-    `globals.css`) showing just `Project.image` in a 7-column block on the
-    right. Stacks to text-above-image on mobile. A `.poster-media-placeholder`
-    inset slot stands in for projects with no image yet.
-  - **Figures**: any extra photos/screenshots (`Project.figures` in
-    `lib/resume_data.ts` — each a `{ src, caption }` pair) render as
-    `.figure-card`s via `ProjectFigures` (`components/project_figures.tsx`)
-    — one figure per card, image and a short caption discussing what it
-    actually shows side by side (`md:grid-cols-12`, image spanning 5
-    columns, caption 7), alternating sides per figure via `md:order-*` so
-    the rhythm doesn't get monotonous. Each card is a raised claymorphism
-    panel (`box-shadow: var(--clay-raised)`) with the image itself pressed
-    into it via `.figure-media`'s `--clay-inset-sm`, like a photo mounted in
-    a frame — stronger claymorphism than the rest of the page, on purpose,
-    since this is the one place meant to feel tactile. The whole card is the
-    click target (`.figure-card` is a `<button>`, not just the image) and
-    opens `components/lightbox.tsx`'s claymorphism modal variant
-    (`.lightbox-clay`) — the figure at full scale (`object-fit: contain`,
-    not cropped) in its own raised clay-inset panel next to its caption text,
-    versus the plain centered-image viewer `ProjectPoster`'s hero image still
-    uses (no caption to show, so no text-beside-image layout needed there).
-    Figures split
-    roughly in half, one group between Highlights and the write-up and one
-    after it, numbered continuously across both (`startIndex` prop) so a
-    project's figures still read as one sequence even though they're spread
-    down the page rather than bunched into one block up top. `Project.paper`
-    points at a PDF in the project's own `public/` subfolder (e.g.
-    `/FLARE/Paper.pdf`) — if a project has a paper, pull its real
-    figures/screenshots into `figures` (with real captions describing them)
-    rather than leaving this section empty.
-  - **Highlights**: its own full-width band below the hero split (3-column
-    grid at `lg+`, since it has the whole container to use, not a narrower
-    column).
-  - **Write-up**: single-column prose (`.dossier-body`, numbered
-    `.dossier-h2` sections, chip-style inline `code`), constrained to
-    `max-w-3xl` inside the wider `max-w-6xl` article — so the page alternates
-    wide (hero/figures/highlights) and narrow (write-up) zones rather than
-    one uniform width top to bottom. Keep the write-up itself short (a few
-    sections plus one pull-quote stat callout) — the figures and highlights
-    are meant to carry most of the page's weight, not the prose.
-- **Claymorphism, monochrome only**: `--clay-raised` / `--clay-inset` (plus
-  `-sm` variants) in `globals.css` `:root` are soft dual-tone shadows — a
-  light highlight (top-left) and a dark shadow (bottom-right), both very
-  diffused — built only from `--foreground`/white-on-`--background`, no new
-  hue. Raised = a filled/interactive element (chips, badges, the poster
-  panel itself); inset = an empty/placeholder or pressed state (the "coming
-  soon" image slot, a chip's hover state). This is Projects-only for now —
-  a full-site claymorphism pass would be a real proposal to raise, not
-  something to extend quietly to other pages.
+- The Projects entry page (`app/projects/[slug]/page.tsx`) is an
+  Apple-product-page / Swiss-grid "scroll-reveal" template — a full replacement
+  for an earlier claymorphism poster/figure-card/dossier design (retired
+  entirely, no trace of `clay-*`/`poster-*`/`figure-*`/`dossier-*` remains).
+  It's a fixed four-beat sequence — Hero → Problem → Gallery → Highlights —
+  built from stacked full-screen (`min-h-dvh` — a *minimum*, not a fixed
+  height: see Problem below, which is allowed to grow taller) sections
+  (unlike most of the site, which is one continuously-scrolling column),
+  each one revealing once via Framer Motion `whileInView`/staggered-mount as
+  it enters the viewport (never scroll-jacked/pinned at the Framer Motion
+  level — plain triggered reveals, so it holds up on mobile Safari/Android
+  and any desktop browser without needing scroll-linked scrubbing). Every
+  reveal is skipped/instant under `useReducedMotion()`, no exceptions.
+  Separately, `components/project_slide_deck.tsx` *does* wheel-jack —
+  see its own doc comment for how it special-cases a slide taller than the
+  viewport (Problem) so normal scrolling still works inside it. There is no
+  separate MDX write-up section anymore — the old per-project
+  `content/projects/*.mdx` long-form write-ups were retired along with it
+  (the `.mdx` files themselves are left on disk, unused, in case their prose
+  gets folded into `problem`/`bullets`/`future` later; nothing renders them
+  today). The fixed `Nav` (`components/nav.tsx`,
+  the `HOME`/`PROJECTS`/`RESUME`/`EXPERIENCE` link list) is hidden entirely on
+  every `/projects/<slug>` route — its vertical top-right link list collided
+  with this template's own top-right corner elements (project number, the
+  problem photo, gallery images), and the hero's own `← Projects` link
+  already covers "go back," so there's no navigation lost. `Logo`
+  (`components/logo.tsx`, the small top-left home mark) stays, raised to
+  `z-[60]` (up from `z-50`) so it's guaranteed to paint above this
+  template's sections — those run symmetric `py-10 md:py-12` padding, full
+  height, with no top clearance carved out for it. Content sitting under the
+  logo (e.g. the hero's `← Projects` link at small viewports) is expected
+  and fine; the logo is opaque and always wins the stack.
+  - **Hero** (`components/project_hero.tsx`): text-only, full screen — back
+    link ("Back to Projects") stacked directly above a massive project
+    number (`lib/project_data.ts`'s `getProjectPosition`, just the index,
+    e.g. `01`, not `01 / 04` — arbitrary-value `text-[120px]` up to
+    `text-[400px]` at `md+`, not the standard `text-9xl` scale, tabular-nums,
+    `font-normal` (deliberately not bold, unlike `Project.name` — the size
+    alone carries the weight here), full-opacity `text-background` — same
+    white as `Project.name`, not the dimmer `/70`-ish tones used elsewhere
+    in the corners), both right-aligned
+    in the top-right corner (nothing pinned top-left anymore). The number is
+    deliberately oversized, at or past `Project.name`'s own scale rather
+    than staying a secondary label. Huge `Project.name` (`text-6xl`
+    up to `text-9xl` at `lg+`) anchored
+    bottom-left, and `Project.description` + flat `.project-chip` pills
+    (tech/GitHub/paper links) anchored bottom-right. Stacks to a single
+    bottom-aligned column below `md`. Staggered entrance via the shared
+    `useCurtainEntranceVariants()` hook (`lib/curtain_entrance.ts`, the same
+    one `home_content.tsx`/`projects_content.tsx`/`resume_content.tsx` use).
+    Dark: `bg-foreground`/`text-background`, the same inverted near-black
+    panel the home page's SONDER footer block uses — the only other place
+    on the site that inverts like this, so the hero reuses it rather than
+    introducing a new tone. Chips use the `.project-chip-on-dark` modifier
+    (light hairline, invert-to-cream on hover) since the plain
+    `.project-chip` hairline/hover is tuned for a light background and goes
+    invisible on a dark one.
+  - **Problem** (`components/project_problem.tsx`): a long-form, first-person,
+    conversational "why I built this" statement (`Project.problem` — a
+    single string, blank lines via `\n\n` for paragraph breaks — split into
+    a `paragraphs` array, not rendered as one `whitespace-pre-line` block),
+    done as a **pinned, one-paragraph-at-a-time reveal**: only one paragraph
+    is ever visible, each new one overriding the last in the exact same
+    spot rather than the page scrolling past it — a paragraph is either the
+    one showing (solid `text-foreground`) or it isn't (invisible). Each
+    paragraph's own last `GRAY_TAIL_WORDS` (6, via `paragraphParts()`) start
+    muted and flip solid `--foreground` one whole word at a time as you
+    scroll through that paragraph's own segment, finishing right as the
+    next paragraph takes over — deliberately discrete, not a smooth
+    continuous sweep (an earlier version used a `background-clip: text`
+    gradient for a fluid left-to-right fill; a word is now either fully
+    revealed or it isn't, no partial/mid-word state). Each word gets its
+    own `<span>` (`WORD_FLIP_CLASS`: `transition-colors duration-[110ms]
+    delay-[40ms]`) — the small delay before each flip's quick color
+    transition is what gives it a "snap" rather than gliding. Which words
+    are revealed is `revealedCount = Math.floor(localProgress *
+    activeWords.length)`, written straight onto each word's inline
+    `color` each scroll frame — not animated by CSS/scroll-scrub itself,
+    just the flip transition. Structurally: an outer
+    `data-slide` wrapper with an explicit inline `height` of
+    `paragraphs.length * 100vh` (one full screen of scroll per paragraph),
+    and an inner `sticky top-0 h-dvh` content box that stays visually
+    pinned the whole time the wrapper scrolls past underneath it — nothing
+    on screen moves or shifts. All paragraphs render at once, stacked
+    exactly on top of each other via a CSS grid stack (every `<p>` shares
+    `[grid-area:1/1]`, so the grid auto-sizes to the tallest one); the
+    active one sits at `opacity: 1, translateY(0)`, the rest at `opacity: 0`
+    and slid `SLIDE_PX` (32px) in the scroll direction they're waiting in
+    (not-yet-shown paragraphs below by `+32px`, already-shown ones above by
+    `-32px`) — `transition-[opacity,transform] duration-500` crossfades and
+    slides the next paragraph into the outgoing one's place rather than an
+    instant swap. Inactive paragraphs also get `aria-hidden="true"` so
+    screen readers don't hear every paragraph read out at once. Which index
+    is active, each paragraph's opacity/transform/`aria-hidden`, and how
+    many tail words are revealed, is plain JS, not CSS/GSAP: a
+    `lenis.on("scroll", ...)` listener
+    recomputes `-wrapperRect.top / (wrapperRect.height - viewportHeight)`
+    on every scroll frame as overall 0–1 progress, scales that by
+    `paragraphs.length` to get an active index plus a `localProgress`
+    (0–1 *within* that paragraph's own one-screen segment — the fractional
+    remainder), and writes the resulting styles directly via refs — no
+    React state, so this never triggers a re-render.
+    `project_slide_deck.tsx` already knows to let
+    normal scrolling happen inside any `data-slide` taller than the
+    viewport instead of wheel-jacking through it, which is exactly what
+    this wrapper needs, and required no further changes. Fully inert under
+    `useReducedMotion()` — and deliberately branches to a *different DOM
+    shape* for that case (all paragraphs laid out plainly in a column, no
+    pinning, no sticky, no inline tall `height`) rather than just varying
+    animation props like most of the deck does, so `reduceMotion` itself is
+    pinned to `false` until after mount (`useMounted()`, the same
+    `useSyncExternalStore` trick `lib/curtain_entrance.ts` uses) — otherwise
+    that structural branch is a real hydration-mismatch risk if
+    `useReducedMotion()` ever resolves differently between the server
+    render and the first client render. Skipped entirely when a project has
+    no `problem` set yet.
+  - **Gallery** (`components/project_gallery.tsx`): a 2x2 Swiss-grid contact
+    sheet, paginated four images per full-screen section — `Project.image`
+    first, then each `Project.figures[]` entry (`lib/resume_data.ts`). Each
+    grid fills nearly the whole viewport (`flex-1` inside the section, thin
+    `gap-3 md:gap-4`, no fixed aspect ratio — the 2x2 grid tracks size the
+    cells, `object-cover` crops to whatever that ends up being) rather than
+    sitting as a small centered block. A project with more than four images
+    gets multiple grid slides; a page with fewer than four just leaves the
+    remaining cells empty (no filler placeholders). Captions render as a
+    bottom-edge gradient overlay on the cell itself (not external text below
+    it — there's no spare vertical space for that once a cell fills its
+    quadrant). Each cell keeps `SOFT_MEDIA_BOX`'s rounded/hairline treatment.
+    Click-to-enlarge opens `components/lightbox.tsx`'s single minimal viewer
+    (big centered image, plain caption text below when present). Degrades
+    gracefully when a project has few/no `figures` yet; no separate "sparse"
+    template needed.
+  - **Highlights** (`components/project_highlights.tsx`): the closing slide —
+    only rendered if `Project.bullets` and/or `Project.future` exist. Bullets
+    render as a large pale Swiss-style numeral (`text-foreground/15`) beside
+    each one, 1-col mobile / 2-col `md+`, staggered reveal; an optional
+    "What's Next" list of forward-looking follow-ups (`Project.future`)
+    renders underneath as a plain arrow-bulleted list.
 
 ## Static assets (`public/`)
 
@@ -158,7 +239,12 @@ convention.
 | `SOFT_MEDIA_BOX`     | Rounded corners + hairline border + diffused shadow, for boxed photography.     |
 | `FULL_BLEED`         | Breaks an element to full viewport width via `margin: calc(50% - 50vw)` — works regardless of parent width, safe under transformed ancestors (unlike a `left: 50%; translate` approach). |
 
-## Content / MDX (`content/experience/`, `content/projects/`)
+## Content / MDX (`content/experience/`)
+
+`content/projects/*.mdx` still exists on disk but is no longer imported or
+rendered anywhere — the Projects entry page's write-up section was retired
+in favor of the `problem`/`bullets`/`future` fields on `Project` (see
+Layout above). The patterns below now apply to `content/experience/` only.
 
 - `mdx-components.tsx` defines the **global** MDX renderers (headings,
   paragraphs, links, images, `LinkedInEmbed`, etc.) — these apply to every

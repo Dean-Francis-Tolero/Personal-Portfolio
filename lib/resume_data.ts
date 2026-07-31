@@ -35,7 +35,14 @@ export type Project = {
   id: string;
   name: string;
   description: string;
+  // short, first-person, conversational — why this project got built.
+  // Rendered as its own beat on the project entry page, between the hero
+  // and the gallery. Optional: skipped entirely if unset.
+  problem?: string;
   bullets?: string[];
+  // forward-looking follow-ups ("what's next"), rendered alongside bullets
+  // on the entry page's closing section. Optional.
+  future?: string[];
   link?: string;
   tech?: string[];
   // falls back to a bg-muted/25 placeholder block (see ProjectCard) until set
@@ -132,6 +139,12 @@ export const projects: Project[] = [
     name: "FLARE: Federated Learning Phishing Defense System",
     description:
       "A federated learning system for phishing email detection, aggregating client model updates without transmitting raw data.",
+    problem:
+      "This one started as my graduation project, built around a single constraint: catch phishing emails without anyone's inbox ever leaving their device. Most phishing filters I looked at wanted the opposite — pool everyone's data centrally, train one big model, and hope people trust you with their inboxes along the way.\n\nI wanted to see if federated learning could actually pull off the alternative in practice, not just on paper. That meant building the whole loop myself: a local client that trains on-device, a central server that aggregates weight deltas instead of raw data, and a scheduling strategy that doesn't fall apart the moment a client goes offline mid-round.\n\nThe Chrome extension came last, but it's the part that made the whole thing feel real — watching a warning pop up on an actual phishing email, knowing the model behind it never once saw anyone's actual mail.",
+    future: [
+      "Add a functional LLM fallback for low-confidence predictions.",
+      "Build a central-server dashboard for monitoring every connected client.",
+    ],
     tech: ["Python", "PyTorch", "FastAPI", "SQLAlchemy", "Chrome Extension (MV3)"],
     image: "/FLARE/logo.jpg",
     figures: [
@@ -176,6 +189,8 @@ export const projects: Project[] = [
     name: "Dementia MRI Classifier",
     description:
       "A deep learning pipeline for classifying dementia (CN/AD) from 3D MRI volumes, with explainability built in.",
+    problem:
+      "I didn't want a model that just spits out \"AD\" or \"CN\" and calls it a day — I wanted to know it was looking at the right thing before I trusted it. A classifier that's right for the wrong reasons isn't actually useful in a clinical-adjacent setting, even a coursework one.\n\nSo this became less about squeezing out another percentage point of accuracy and more about building explainability in from the start. I used Integrated Gradients to trace every prediction back to the pixels that drove it, and checked those attribution maps against where atrophy is actually expected to show up.\n\nThe small custom CNN was a deliberate choice too — a lighter model is easier to reason about, and it kept the explainability step tractable instead of turning into its own research project.",
     tech: ["Python", "PyTorch", "NiBabel", "Captum"],
     image: "/Dementia_MRI_Classifier/logo.jpg",
     figures: [
@@ -214,6 +229,8 @@ export const projects: Project[] = [
     name: "RFID Attendance Scanner",
     description:
       "A web-based RFID attendance system built and sold to a school, with real-time tracking and parent notifications.",
+    problem:
+      "A school I knew needed a way to track attendance without a teacher manually taking roll call every single period. It sounded like a small problem until I actually sat with how much class time it was eating, every day, across every classroom.\n\nSo I built them a real system: RFID cards at the door, a teacher-facing dashboard with live and historical attendance, and a separate parent portal scoped to just their own kid's check-ins. Both update over WebSocket, not polling, so nobody's staring at a page waiting for it to refresh.\n\nI ended up selling it to them instead of just shipping it as a portfolio piece — the first time something I built went from a personal project to a system real people used every day.",
     tech: ["JavaScript", "MySQL", "Node.js", "Express.js"],
     image: "/RFID_Attendance_Scanner/logo.jpg",
     link: "https://github.com/Dean-Francis-Tolero/RFID-Attendance-Scanner",
@@ -229,6 +246,8 @@ export const projects: Project[] = [
     name: "Algorithms II Visualizer",
     description:
       "An interactive, single-page visualizer covering three Algorithms II topics, built for a university midterm with step-by-step animation and pseudocode highlighting.",
+    problem:
+      "For an Algorithms II midterm, I kept noticing that algorithms like matrix chain multiplication are easy enough to code but hard to actually build real intuition for just by reading the code. You can trace through a DP table on paper once and still not really feel why it works.\n\nSo instead of writing a script that prints an answer, I built a visualizer that animates every step — the DP cost and split tables filling in cell by cell, the recursion tree for merge sort branching out with a live Gantt chart of processor utilization, the Extended Euclidean algorithm unwinding one recursive call at a time.\n\nEverything renders natively in SVG, with pseudocode highlighting synced to whatever's animating, so you can watch the code and the visual update together instead of trying to hold both in your head at once.",
     tech: ["JavaScript", "HTML", "SVG"],
     image: "/Algorithms_II/logo.jpg",
     link: "https://github.com/Dean-Francis-Tolero/Algorithms",

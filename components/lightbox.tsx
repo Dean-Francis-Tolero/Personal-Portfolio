@@ -88,9 +88,9 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
     <LightboxContext.Provider value={{ open }}>
       {children}
       <AnimatePresence>
-        {media && media.caption ? (
+        {media && (
           <motion.div
-            key="lightbox-clay-overlay"
+            key="lightbox-overlay"
             className="lightbox-overlay"
             role="dialog"
             aria-modal="true"
@@ -98,23 +98,22 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
             {...backdropMotion}
           >
             <motion.div
-              className="lightbox-clay"
+              className="lightbox-panel"
               onClick={(e) => e.stopPropagation()}
               {...panelMotion}
             >
-              <div className="lightbox-clay-media">
-                {media.isVideo ? (
-                  <video src={media.src} controls autoPlay loop muted playsInline />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={media.src} alt="" />
-                )}
-              </div>
-              <div className="lightbox-clay-divider" aria-hidden="true" />
-              <div className="lightbox-clay-text">
-                {media.badge && <span className="clay-badge shrink-0">{media.badge}</span>}
-                <p>{media.caption}</p>
-              </div>
+              {media.isVideo ? (
+                <video src={media.src} controls autoPlay loop muted playsInline />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={media.src} alt="" />
+              )}
+              {media.caption && (
+                <p className="lightbox-caption">
+                  {media.badge && <span className="lightbox-caption-badge">{media.badge}</span>}
+                  {media.caption}
+                </p>
+              )}
             </motion.div>
             <button
               ref={closeButtonRef}
@@ -126,46 +125,6 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
               ×
             </button>
           </motion.div>
-        ) : (
-          media && (
-            <motion.div
-              key="lightbox-plain-overlay"
-              className="lightbox-overlay"
-              role="dialog"
-              aria-modal="true"
-              onClick={close}
-              {...backdropMotion}
-            >
-              {media.isVideo ? (
-                <motion.video
-                  src={media.src}
-                  controls
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  onClick={(e) => e.stopPropagation()}
-                  {...panelMotion}
-                />
-              ) : (
-                <motion.img
-                  src={media.src}
-                  alt=""
-                  onClick={(e) => e.stopPropagation()}
-                  {...panelMotion}
-                />
-              )}
-              <button
-                ref={closeButtonRef}
-                type="button"
-                className="lightbox-close"
-                aria-label="Close"
-                onClick={close}
-              >
-                ×
-              </button>
-            </motion.div>
-          )
         )}
       </AnimatePresence>
     </LightboxContext.Provider>
