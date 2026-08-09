@@ -203,33 +203,6 @@ a.project-chip-on-dark:focus-visible {
   filter: drop-shadow(0 0 3px rgba(18, 18, 18, 0.5));
 }
 
-/* Small "enlarge" hint, revealed on hover/focus of a clickable media tile. */
-.media-expand-hint {
-  position: absolute;
-  bottom: 0.75rem;
-  right: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 9999px;
-  background: var(--foreground);
-  color: var(--background);
-  opacity: 0;
-  transform: scale(0.85);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.media-expand-hint svg {
-  width: 1.1rem;
-  height: 1.1rem;
-}
-.project-gallery-cell:hover .media-expand-hint,
-.project-gallery-cell:focus-visible .media-expand-hint {
-  opacity: 1;
-  transform: scale(1);
-}
-
 /* Full-screen image/video viewer opened by clicking a gallery image.
    Deliberately does NOT stretch media past its natural size — upscaling a
    small source past its native resolution is what was making enlarged
@@ -295,4 +268,57 @@ a.project-chip-on-dark:focus-visible {
   line-height: 1;
   color: var(--background);
   background: var(--foreground);
+}
+
+/* Prev/next arrows shown when the lightbox is opened onto a navigable
+   queue (currently just the "+N" gallery overflow tile) rather than a
+   single fixed image. */
+.lightbox-nav {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.75rem;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: var(--background);
+  background: var(--foreground);
+}
+.lightbox-nav-prev {
+  left: 1.5rem;
+}
+.lightbox-nav-next {
+  right: 1.5rem;
+}
+.lightbox-counter {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--background);
+  background: var(--foreground);
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+}
+
+/* "+N" overlay on the gallery's 4th cell when a project has more photos
+   than the 2x2 grid can show one-per-cell — the underlying image dims and
+   the count sits on top; clicking opens the lightbox in gallery mode over
+   every remaining photo. */
+.project-gallery-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 18, 18, 0.55);
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
 }

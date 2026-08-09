@@ -20,6 +20,10 @@ type LightboxMedia = {
 };
 type LightboxContextValue = {
   open: (src: string, isVideo?: boolean, caption?: string, badge?: string) => void;
+  // Opens onto a navigable set of media (currently just the gallery's "+N"
+  // overflow tile) instead of a single fixed image, so prev/next arrows and
+  // a counter appear.
+  openGallery: (items: LightboxMedia[], startIndex?: number) => void;
 };
 
 const LightboxContext = createContext<LightboxContextValue | null>(null);
@@ -31,7 +35,9 @@ export function useLightbox(): LightboxContextValue {
 }
 
 export function LightboxProvider({ children }: { children: ReactNode }) {
-  const [media, setMedia] = useState<LightboxMedia | null>(null);
+  const [queue, setQueue] = useState<LightboxMedia[]>([]);
+  const [index, setIndex] = useState(0);
+  const media = queue[index] ?? null;
   const reduceMotion = useReducedMotion();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const triggerRef = useRef<Element | null>(null);
@@ -39,23 +45,37 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
   const open = useCallback(
     (src: string, isVideo = false, caption?: string, badge?: string) => {
       triggerRef.current = document.activeElement;
-      setMedia({ src, isVideo, caption, badge });
+      setQueue([{ src, isVideo, caption, badge }]);
+      setIndex(0);
     },
     []
   );
-  const close = useCallback(() => setMedia(null), []);
+  const openGallery = useCallback((items: LightboxMedia[], startIndex = 0) => {
+    triggerRef.current = document.activeElement;
+    setQueue(items);
+    setIndex(startIndex);
+  }, []);
+  const close = useCallback(() => setQueue([]), []);
+  const next = useCallback(() => setIndex((i) => (i + 1) % queue.length), [queue.length]);
+  const prev = useCallback(
+    () => setIndex((i) => (i - 1 + queue.length) % queue.length),
+    [queue.length]
+  );
 
   // The overlay sits on top visually, but Lenis binds to the scroll
   // container regardless, so without this the page behind it still scrolls.
   useScrollLock(!!media);
 
-  // Escape to close, and move focus to the close button so keyboard users
-  // land inside the dialog immediately — restoring focus to whichever
-  // figure/poster button opened it on close.
+  // Escape to close, arrow keys to navigate a multi-item queue, and move
+  // focus to the close button so keyboard users land inside the dialog
+  // immediately — restoring focus to whichever figure/poster button opened
+  // it on close.
   useEffect(() => {
     if (!media) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
+      else if (e.key === "ArrowRight" && queue.length > 1) next();
+      else if (e.key === "ArrowLeft" && queue.length > 1) prev();
     };
     document.addEventListener("keydown", onKey);
 
@@ -65,7 +85,7 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
       document.removeEventListener("keydown", onKey);
       if (triggerRef.current instanceof HTMLElement) triggerRef.current.focus();
     };
-  }, [media, close]);
+  }, [media, close, next, prev, queue.length]);
 
   const backdropMotion = reduceMotion
     ? {}
@@ -84,8 +104,10 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
         transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] as const },
       };
 
+  const hasNav = queue.length > 1;
+
   return (
-    <LightboxContext.Provider value={{ open }}>
+    <LightboxContext.Provider value={{ open, openGallery }}>
       {children}
       <AnimatePresence>
         {media && (
@@ -98,6 +120,7 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
             {...backdropMotion}
           >
             <motion.div
+              key={media.src}
               className="lightbox-panel"
               onClick={(e) => e.stopPropagation()}
               {...panelMotion}
@@ -115,6 +138,35 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
                 </p>
               )}
             </motion.div>
+            {hasNav && (
+              <>
+                <button
+                  type="button"
+                  className="lightbox-nav lightbox-nav-prev"
+                  aria-label="Previous photo"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prev();
+                  }}
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  className="lightbox-nav lightbox-nav-next"
+                  aria-label="Next photo"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    next();
+                  }}
+                >
+                  ›
+                </button>
+                <span className="lightbox-counter">
+                  {index + 1} / {queue.length}
+                </span>
+              </>
+            )}
             <button
               ref={closeButtonRef}
               type="button"
@@ -131,15 +183,3 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Small "click to enlarge" affordance shown on hover/focus of a clickable
-// media tile — reuses the same reveal-on-hover vocabulary as the project
-// card's "View project →" hint elsewhere on the site.
-export function ExpandHint() {
-  return (
-    <span className="media-expand-hint" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </span>
-  );
-}

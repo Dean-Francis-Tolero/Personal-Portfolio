@@ -165,22 +165,47 @@ proposal to raise, not something to add quietly.
     `useReducedMotion()` ever resolves differently between the server
     render and the first client render. Skipped entirely when a project has
     no `problem` set yet.
-  - **Gallery** (`components/project_gallery.tsx`): a 2x2 Swiss-grid contact
-    sheet, paginated four images per full-screen section — `Project.image`
-    first, then each `Project.figures[]` entry (`lib/resume_data.ts`). Each
-    grid fills nearly the whole viewport (`flex-1` inside the section, thin
-    `gap-3 md:gap-4`, no fixed aspect ratio — the 2x2 grid tracks size the
-    cells, `object-cover` crops to whatever that ends up being) rather than
-    sitting as a small centered block. A project with more than four images
-    gets multiple grid slides; a page with fewer than four just leaves the
-    remaining cells empty (no filler placeholders). Captions render as a
-    bottom-edge gradient overlay on the cell itself (not external text below
-    it — there's no spare vertical space for that once a cell fills its
-    quadrant). Each cell keeps `SOFT_MEDIA_BOX`'s rounded/hairline treatment.
-    Click-to-enlarge opens `components/lightbox.tsx`'s single minimal viewer
-    (big centered image, plain caption text below when present). Degrades
-    gracefully when a project has few/no `figures` yet; no separate "sparse"
-    template needed.
+  - **Gallery** (`components/project_gallery.tsx`): a single 2x2 Swiss-grid
+    contact sheet — always exactly one full-screen slide, never paginated —
+    of `Project.image` first, then each `Project.figures[]` entry
+    (`lib/resume_data.ts`). `Project.image` is shared with the Projects
+    listing card (`project_parallax.tsx`) and OG/social metadata — it's
+    always the project's real photo, never swapped for a placeholder. The
+    gallery's cover cell can show something else instead via
+    `Project.coverThumbnail` (e.g. a shared placeholder), but clicking it
+    still opens the real `image` — that override is scoped to the gallery
+    cell only, the listing card and metadata are untouched by it. Each
+    `figures[]` entry can similarly set its own `full` to differ from its
+    `src` thumbnail; falls back to the cell's own thumbnail when unset (the
+    common case). The grid fills nearly the whole viewport
+    (`flex-1` inside the section, thin `gap-3 md:gap-4`, no fixed aspect
+    ratio — the 2x2 tracks size the cells, `object-cover` crops to whatever
+    that ends up being) rather than sitting as a small centered block. Up to
+    four images get their own cell 1:1; a project with fewer than four just
+    leaves the remaining cells empty (no filler placeholders). A project
+    with *more* than four never grows the grid or adds a second slide —
+    only the first three images get their own cell, and the 4th cell dims
+    its image under a bold `.project-gallery-overlay` "+N" badge (N = every
+    photo not otherwise shown, including that 4th image itself — e.g. 6
+    total images reads "+3"). Clicking that tile calls
+    `useLightbox().openGallery()` (`components/lightbox.tsx`) with the full
+    remaining set instead of the single-image `open()` every other cell
+    uses, putting the lightbox into prev/next mode (`.lightbox-nav-prev`/
+    `-next` arrow buttons, ArrowLeft/ArrowRight key handling, an "i / N"
+    `.lightbox-counter`) so every photo stays reachable without a second
+    page. A plain `open()` call still renders the original single fixed
+    image with no arrows/counter.
+    Captions don't render on the cell itself — figure captions/badges only
+    surface once a photo is open in the lightbox (`.lightbox-caption-badge`
+    etc., `components/lightbox.tsx`); a bare cell just shows the photo, kept
+    deliberately quiet since there's no spare room once a cell fills its
+    quadrant. The only on-cell overlay is the overflow tile's bold "+N"
+    badge. Hover/focus feedback is a plain `scale(1.05)` zoom of the image
+    itself (clipped to the cell via `overflow-hidden`, skipped under
+    `useReducedMotion()`) with a plain `cursor-pointer` — no extra hint icon
+    or gradient overlay layered on top. Each cell keeps `SOFT_MEDIA_BOX`'s
+    rounded/hairline treatment. Degrades gracefully when a project has
+    few/no `figures` yet; no separate "sparse" template needed.
   - **Highlights** (`components/project_highlights.tsx`): the closing slide —
     only rendered if `Project.bullets` and/or `Project.future` exist. Bullets
     render as a large pale Swiss-style numeral (`text-foreground/15`) beside
@@ -236,7 +261,7 @@ convention.
 | -------------------- | ------------------------------------------------------------------------------ |
 | `LINK_UNDERLINE`     | Underline that draws in on hover/focus-visible. Standard link treatment.       |
 | `ROW_FILL_HOVER`     | Background/text color inverts on hover/focus-visible. Used for list rows (e.g. Experience list).|
-| `SOFT_MEDIA_BOX`     | Rounded corners + hairline border + diffused shadow, for boxed photography.     |
+| `SOFT_MEDIA_BOX`     | Rounded corners + hairline border + diffused shadow, for boxed photography. The Projects listing grid (`components/project_parallax.tsx`) deliberately deviates — same hairline border/shadow, sharp square corners instead — don't copy that override elsewhere without reason. |
 | `FULL_BLEED`         | Breaks an element to full viewport width via `margin: calc(50% - 50vw)` — works regardless of parent width, safe under transformed ancestors (unlike a `left: 50%; translate` approach). |
 
 ## Content / MDX (`content/experience/`)

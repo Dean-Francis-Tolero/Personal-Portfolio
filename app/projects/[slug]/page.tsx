@@ -54,7 +54,11 @@ export default async function ProjectEntryPage({
         <ProjectSlideDeck>
           <ProjectHero project={project} position={position} />
           <ProjectProblem problem={project.problem} />
-          <ProjectGallery image={project.image} figures={project.figures} />
+          <ProjectGallery
+            image={project.image}
+            coverThumbnail={project.coverThumbnail}
+            figures={project.figures}
+          />
           <ProjectHighlights bullets={project.bullets} future={project.future} />
         </ProjectSlideDeck>
       </LightboxProvider>

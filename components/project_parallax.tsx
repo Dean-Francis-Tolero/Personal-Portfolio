@@ -6,7 +6,6 @@ import Link from "next/link";
 import { motion, useScroll, useTransform, useSpring, type MotionValue } from "motion/react";
 import type { Project } from "../lib/resume_data";
 import { useScrollContainer } from "./scroll_container";
-import { SOFT_MEDIA_BOX } from "../lib/styles";
 
 // Front-loads the odd project into row one so a short list still reads as two
 // intentional rows instead of one full row and one mostly-empty one.
@@ -61,14 +60,17 @@ export function ProjectParallax({ projects }: { projects: Project[] }) {
 function ProjectCard({ project, translate }: { project: Project; translate: MotionValue<number> }) {
   const media = (
     <div
-      className={`relative h-72 w-full transition-shadow duration-300 group-hover/card:shadow-[0_22px_60px_rgba(0,0,0,0.16)] ${SOFT_MEDIA_BOX}`}
+      // Sharp corners are a deliberate deviation from SOFT_MEDIA_BOX (which
+      // rounds by default) — kept to just the hairline border + diffused
+      // shadow for this grid of project tiles.
+      className="relative h-80 w-full overflow-hidden border border-black/5 shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-shadow duration-300 group-hover/card:shadow-[0_22px_60px_rgba(0,0,0,0.16)]"
     >
       {project.image ? (
         <Image
           src={project.image}
           alt=""
           fill
-          sizes="416px"
+          sizes="480px"
           className="object-cover object-center"
         />
       ) : (
@@ -92,7 +94,7 @@ function ProjectCard({ project, translate }: { project: Project; translate: Moti
     <motion.div
       style={{ x: translate }}
       whileHover={{ y: -12 }}
-      className="group/card w-[26rem] shrink-0"
+      className="group/card w-[30rem] shrink-0"
     >
       <Link href={`/projects/${project.id}`} className="block">
         {media}

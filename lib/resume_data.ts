@@ -26,6 +26,11 @@ export type SkillGroup = {
 export type ProjectFigure = {
   // photo or screen-recording demo (.mp4/.webm/.mov — auto-detected by extension)
   src: string;
+  // optional: what the lightbox opens to when this figure's cell is
+  // clicked, if it should differ from the `src` thumbnail (e.g. the
+  // original photo behind a shared placeholder thumbnail). Falls back to
+  // `src` when unset.
+  full?: string;
   // a sentence or two on what the image actually shows, rendered next to it
   // as its own captioned section on the project entry page.
   caption: string;
@@ -45,8 +50,16 @@ export type Project = {
   future?: string[];
   link?: string;
   tech?: string[];
-  // falls back to a bg-muted/25 placeholder block (see ProjectCard) until set
+  // falls back to a bg-muted/25 placeholder block (see ProjectCard) until
+  // set. Used by the Projects listing card (`project_parallax.tsx`), OG/social
+  // metadata, AND as the entry page gallery's cover cell — unless
+  // `coverThumbnail` below overrides just that last one.
   image?: string;
+  // optional: shown in the entry page gallery's cover cell instead of
+  // `image` (e.g. a shared placeholder thumbnail) — clicking it still opens
+  // the real `image`. Only affects the gallery; the listing card and OG
+  // metadata always use `image` directly. Falls back to `image` when unset.
+  coverThumbnail?: string;
   // extra figures (diagrams, screenshots, charts) discussed one at a time
   // further down the project entry page. Entirely optional.
   figures?: ProjectFigure[];
@@ -146,33 +159,12 @@ export const projects: Project[] = [
       "Build a central-server dashboard for monitoring every connected client.",
     ],
     tech: ["Python", "PyTorch", "FastAPI", "SQLAlchemy", "Chrome Extension (MV3)"],
-    image: "/FLARE/logo.jpg",
+    image: "/FLARE/Flare_logo.png",
+    coverThumbnail: "/Cover.png",
     figures: [
-      {
-        src: "/FLARE/Architecture.png",
-        caption:
-          "The four layers of the system: a JavaScript/Chart.js frontend feeding a Chrome extension, a FastAPI backend, the DistilBERT model layer, and a SQLite database behind SQLAlchemy.",
-      },
-      {
-        src: "/FLARE/System_Diagram.png",
-        caption:
-          "How updates flow: each browser extension reports to a local FL client, which pushes weight deltas up to the central federated learning server, while corporate deployments route through a shared FL web server first.",
-      },
-      {
-        src: "/FLARE/Admin_Overview.png",
-        caption:
-          "The admin dashboard's overview page, tracking false positives and false negatives across all users over time.",
-      },
-      {
-        src: "/FLARE/Flagged_Emails.png",
-        caption:
-          "The flagged-emails table: every email a user has flagged for retraining, with its confidence score and current label.",
-      },
-      {
-        src: "/FLARE/Latency_Chart.png",
-        caption:
-          "Response time for the /predict endpoint, consistently under 5ms for short emails and under 15ms for long ones.",
-      },
+      { src: "/Prototype.png", full: "/FLARE/Architecture.png", caption: "Prototype" },
+      { src: "/Result.png", full: "/FLARE/System_Diagram.png", caption: "Result" },
+      { src: "/Details.png", full: "/FLARE/Admin_Overview.png", caption: "Details" },
     ],
     link: "https://github.com/Dean-Francis-Tolero/Flare",
     paper: "/FLARE/Paper.pdf",
@@ -192,27 +184,23 @@ export const projects: Project[] = [
     problem:
       "I didn't want a model that just spits out \"AD\" or \"CN\" and calls it a day — I wanted to know it was looking at the right thing before I trusted it. A classifier that's right for the wrong reasons isn't actually useful in a clinical-adjacent setting, even a coursework one.\n\nSo this became less about squeezing out another percentage point of accuracy and more about building explainability in from the start. I used Integrated Gradients to trace every prediction back to the pixels that drove it, and checked those attribution maps against where atrophy is actually expected to show up.\n\nThe small custom CNN was a deliberate choice too — a lighter model is easier to reason about, and it kept the explainability step tractable instead of turning into its own research project.",
     tech: ["Python", "PyTorch", "NiBabel", "Captum"],
-    image: "/Dementia_MRI_Classifier/logo.jpg",
+    image: "/Dementia_MRI_Classifier/cnn_logo.jpg",
+    coverThumbnail: "/Cover.png",
     figures: [
       {
-        src: "/Dementia_MRI_Classifier/Explainability.png",
-        caption:
-          "Integrated Gradients output for a single MRI slice: the original scan, its attribution map, an overlay of the most influential regions, and the resulting prediction confidence.",
+        src: "/Prototype.png",
+        full: "/Dementia_MRI_Classifier/Explainability.png",
+        caption: "Prototype",
       },
       {
-        src: "/Dementia_MRI_Classifier/MMSE_vs_Volume.png",
-        caption:
-          "Cognitive test scores (MMSE) plotted against normalized brain volume. AD subjects cluster at lower volume and lower scores, matching where atrophy would be expected.",
+        src: "/Result.png",
+        full: "/Dementia_MRI_Classifier/MMSE_vs_Volume.png",
+        caption: "Result",
       },
       {
-        src: "/Dementia_MRI_Classifier/Age_Distribution.png",
-        caption:
-          "Age distribution of the OASIS subjects used for training, split by diagnosis.",
-      },
-      {
-        src: "/Dementia_MRI_Classifier/Loss_Curve.png",
-        caption:
-          "Training and validation loss over 25 epochs, showing where the model starts to overfit before early stopping steps in.",
+        src: "/Details.png",
+        full: "/Dementia_MRI_Classifier/Age_Distribution.png",
+        caption: "Details",
       },
     ],
     link: "https://github.com/Dean-Francis-Tolero/dementia-mri-classifier",
@@ -232,7 +220,13 @@ export const projects: Project[] = [
     problem:
       "A school I knew needed a way to track attendance without a teacher manually taking roll call every single period. It sounded like a small problem until I actually sat with how much class time it was eating, every day, across every classroom.\n\nSo I built them a real system: RFID cards at the door, a teacher-facing dashboard with live and historical attendance, and a separate parent portal scoped to just their own kid's check-ins. Both update over WebSocket, not polling, so nobody's staring at a page waiting for it to refresh.\n\nI ended up selling it to them instead of just shipping it as a portfolio piece — the first time something I built went from a personal project to a system real people used every day.",
     tech: ["JavaScript", "MySQL", "Node.js", "Express.js"],
-    image: "/RFID_Attendance_Scanner/logo.jpg",
+    image: "/RFID_Attendance_Scanner/RFID_logo.png",
+    coverThumbnail: "/Cover.png",
+    figures: [
+      { src: "/Prototype.png", caption: "Prototype" },
+      { src: "/Result.png", caption: "Result" },
+      { src: "/Details.png", caption: "Details" },
+    ],
     link: "https://github.com/Dean-Francis-Tolero/RFID-Attendance-Scanner",
     bullets: [
       "Successfully developed and sold a web-based RFID attendance system for a school, generating approximately 1,000 AED in revenue.",
@@ -249,7 +243,13 @@ export const projects: Project[] = [
     problem:
       "For an Algorithms II midterm, I kept noticing that algorithms like matrix chain multiplication are easy enough to code but hard to actually build real intuition for just by reading the code. You can trace through a DP table on paper once and still not really feel why it works.\n\nSo instead of writing a script that prints an answer, I built a visualizer that animates every step — the DP cost and split tables filling in cell by cell, the recursion tree for merge sort branching out with a live Gantt chart of processor utilization, the Extended Euclidean algorithm unwinding one recursive call at a time.\n\nEverything renders natively in SVG, with pseudocode highlighting synced to whatever's animating, so you can watch the code and the visual update together instead of trying to hold both in your head at once.",
     tech: ["JavaScript", "HTML", "SVG"],
-    image: "/Algorithms_II/logo.jpg",
+    image: "/Algorithms_II/Algorithms_logo.png",
+    coverThumbnail: "/Cover.png",
+    figures: [
+      { src: "/Prototype.png", caption: "Prototype" },
+      { src: "/Result.png", caption: "Result" },
+      { src: "/Details.png", caption: "Details" },
+    ],
     link: "https://github.com/Dean-Francis-Tolero/Algorithms",
     bullets: [
       "Built three fully animated visualizations (Matrix Chain Multiplication using dynamic programming, Parallel Merge Sort using a fork-join model, and the Extended Euclidean Algorithm), each with step-by-step playback and pseudocode highlighting.",
