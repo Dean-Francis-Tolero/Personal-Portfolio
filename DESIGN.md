@@ -36,6 +36,15 @@ second typeface anywhere on the site — if a design calls for a second face
 (e.g. a prototype explored a serif for an editorial feel), that's a real
 proposal to raise, not something to add quietly.
 
+## Copy
+
+No em dashes in site copy — project `description`/`problem`/`bullets`/
+`future` in `lib/resume_data.ts`, `content/experience/*.mdx`, and any other
+visitor-facing text (not code comments or docs like this file, which are
+fine as-is). Rephrase with a period, colon, or comma instead of reaching for
+an em dash — it reads as an AI writing tic and the goal is prose in the
+author's own voice.
+
 ## Layout
 
 - Standard reading column: `max-w-3xl mx-auto w-full px-10`, used by most
