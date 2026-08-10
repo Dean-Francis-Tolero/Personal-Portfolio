@@ -6,6 +6,8 @@ import IntroLoader from "../components/intro_loader";
 import { PageTransitionProvider } from "../components/page_transition";
 import { ScrollContainerProvider } from "../components/scroll_container";
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "../lib/site";
 
 const switzer = localFont({
@@ -66,6 +68,8 @@ export default function RootLayout({
           </ScrollContainerProvider>
         </PageTransitionProvider>
 
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
