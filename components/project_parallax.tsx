@@ -45,10 +45,10 @@ function ProjectStack({ projects }: { projects: Project[] }) {
       {projects.map((project, i) => (
         <motion.div
           key={project.id}
-          initial={reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={reduceMotion ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0, y: 24, filter: "blur(16px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-          transition={reduceMotion ? { duration: 0 } : { duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+          transition={reduceMotion ? { duration: 0 } : { duration: 0.6, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
         >
           <Link href={`/projects/${project.id}`} className="group/card block">
             <CardMedia project={project} className="h-64 w-full" />
@@ -63,6 +63,7 @@ function ProjectStack({ projects }: { projects: Project[] }) {
 function ProjectGrid({ projects }: { projects: Project[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const scrollContainer = useScrollContainer();
+  const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     container: scrollContainer ?? undefined,
@@ -79,6 +80,11 @@ function ProjectGrid({ projects }: { projects: Project[] }) {
   const opacity = useSpring(useTransform(scrollYProgress, [0, 0.2], [0.2, 1]), springConfig);
   const rotateZ = useSpring(useTransform(scrollYProgress, [0, 0.2], [20, 0]), springConfig);
   const translateY = useSpring(useTransform(scrollYProgress, [0, 0.2], [-500, 300]), springConfig);
+  // Cards start blurred and sharpen on the same 0 -> 0.2 scroll window as the
+  // rest of the reveal, so "scroll down to bring it into focus" reads as one
+  // coherent motion rather than blur and tilt settling at different times.
+  const blur = useSpring(useTransform(scrollYProgress, [0, 0.2], reduceMotion ? [0, 0] : [16, 0]), springConfig);
+  const filter = useTransform(blur, (b) => `blur(${b}px)`);
 
   const [firstRow, secondRow] = splitIntoRows(projects);
 
@@ -87,7 +93,7 @@ function ProjectGrid({ projects }: { projects: Project[] }) {
       ref={ref}
       className="relative flex h-[150vh] flex-col self-auto pt-24 pb-32 [perspective:1000px] [transform-style:preserve-3d]"
     >
-      <motion.div style={{ rotateX, rotateZ, translateY, opacity }}>
+      <motion.div style={{ rotateX, rotateZ, translateY, opacity, filter }}>
         <motion.div className="mb-16 flex flex-row-reverse justify-center gap-10 px-10">
           {firstRow.map((project) => (
             <ProjectCard key={project.id} project={project} translate={translateX} />
@@ -103,11 +109,10 @@ function ProjectGrid({ projects }: { projects: Project[] }) {
   );
 }
 
-// Shared visual: the project photo plus a permanent bottom-up shade (not
-// just a hover state) so every tile has some depth/mood at rest, then a
-// fuller-opacity overlay + "View project" cross-fades in on hover. Used by
-// both the mobile stack and the desktop tilt grid so the two layouts read
-// as the same design language, not two unrelated components.
+// Shared visual: the project photo, plain at rest, with a dark overlay +
+// "View project" that cross-fades in on hover. Used by both the mobile
+// stack and the desktop tilt grid so the two layouts read as the same
+// design language, not two unrelated components.
 function CardMedia({ project, className = "" }: { project: Project; className?: string }) {
   return (
     <div
@@ -121,7 +126,6 @@ function CardMedia({ project, className = "" }: { project: Project; className?: 
       ) : (
         <div className="absolute inset-0 h-full w-full bg-muted/25" />
       )}
-      <div className="absolute inset-0 h-full w-full bg-gradient-to-t from-foreground/55 via-foreground/5 to-transparent" />
       <div className="absolute inset-0 h-full w-full bg-foreground opacity-0 transition-opacity duration-300 group-hover/card:opacity-80" />
       <span className="absolute bottom-4 left-4 text-sm font-semibold text-background opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
         View project →
