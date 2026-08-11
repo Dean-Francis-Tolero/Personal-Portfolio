@@ -134,6 +134,7 @@ export function ProjectPhotoCarousel({
               alt=""
               width={item.width}
               height={item.height}
+              sizes="(min-width: 1024px) 70vw, 90vw"
               className="h-auto max-h-full w-auto max-w-full self-center object-contain"
             />
           )}
@@ -193,6 +194,7 @@ export function ProjectPhotoCarousel({
                       alt=""
                       width={item.width}
                       height={item.height}
+                      sizes="(min-width: 1024px) 60vw, 90vw"
                       className="h-full w-auto object-cover"
                     />
                   )}
