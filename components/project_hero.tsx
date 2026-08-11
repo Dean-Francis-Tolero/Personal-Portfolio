@@ -38,7 +38,7 @@ export function ProjectHero({
         >
           Back to Projects
         </Link>
-        <span className="text-[120px] font-normal leading-none tabular-nums text-background sm:text-[220px] md:text-[400px]">
+        <span className="text-[clamp(100px,24vw,420px)] font-normal leading-none tabular-nums text-background">
           {String(position.index).padStart(2, "0")}
         </span>
       </motion.div>
@@ -46,7 +46,7 @@ export function ProjectHero({
       <div className="flex flex-1 flex-col justify-end gap-10 pb-4 md:flex-row md:items-end md:justify-between md:gap-8">
         <motion.h1
           variants={fadeRise}
-          className="max-w-full text-6xl font-bold leading-[0.92] tracking-tight sm:text-7xl md:max-w-[56%] md:text-8xl lg:text-9xl"
+          className="max-w-full text-[clamp(44px,32px+4vw,128px)] font-bold leading-[0.92] tracking-tight md:max-w-[56%]"
         >
           {project.name}
         </motion.h1>
