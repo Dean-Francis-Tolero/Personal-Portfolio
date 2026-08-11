@@ -342,7 +342,17 @@ convention.
   any scroll-driven animation. `<body>` has `overflow-hidden`; the actual
   scrollable element is the Lenis-managed `<main>`, not `<body>` — if you need
   the scroll container in a component, use `useScrollContainer()`, don't
-  assume `window`.
+  assume `window`. `<body>` is sized `h-dvh`/`min-h-dvh`, never plain
+  `h-screen`/`100vh` — since `<body>` itself never scrolls (only the Lenis
+  `<main>` nested inside it does), it never triggers iOS Safari's
+  address-bar auto-collapse, so a `100vh` measurement (which on iOS means
+  "as if the address bar were already hidden") permanently overshoots the
+  actually-visible area by the chrome's height. That gap under-measures the
+  Lenis wrapper's scrollable range by the same amount, so touch-scrolling
+  hits an artificial floor short of the real bottom of the page and
+  rubber-bands — on every page, since they all share this root layout.
+  `dvh` tracks the real visible viewport instead, matching every other
+  scroll-relevant height in this codebase (see the Layout section above).
 - Page-level content reveals (stagger/fade-in on mount) use Framer Motion
   directly in the page component, timed off `CURTAIN_CONTENT_DELAY_S` so they
   don't start until the curtain has fully cleared.

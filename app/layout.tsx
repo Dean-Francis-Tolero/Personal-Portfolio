@@ -55,7 +55,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${switzer.variable} h-full antialiased`}>
-      <body className="min-h-screen h-screen overflow-hidden">
+      <body className="min-h-dvh h-dvh overflow-hidden">
 
         <IntroLoader />
 
