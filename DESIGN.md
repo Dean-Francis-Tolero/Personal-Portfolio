@@ -55,16 +55,23 @@ author's own voice.
   enough width to breathe — not a general pattern to copy elsewhere without
   reason.
 - `SOFT_MEDIA_BOX` (see below) is the standard treatment for boxed
-  photography (rounded, hairline border, diffused shadow). `FULL_BLEED`
-  breaks an element to full viewport width regardless of its parent's width —
-  used sparingly, for genuine hero moments, not routine content images.
+  photography elsewhere on the site (rounded, hairline border, diffused
+  shadow) — e.g. the Projects listing grid, MDX images. `FULL_BLEED` breaks
+  an element to full viewport width regardless of its parent's width; it's
+  used for genuine hero moments elsewhere. Real photo/video on a Projects
+  entry page (see `ProjectPhotoCarousel` below) uses neither: it's laid out
+  within the slide's own side padding, sized off the photo's real pixel
+  dimensions rather than a fixed box.
 - The Projects entry page (`app/projects/[slug]/page.tsx`) is an
   Apple-product-page / Swiss-grid "scroll-reveal" template — a full replacement
   for an earlier claymorphism poster/figure-card/dossier design (retired
   entirely, no trace of `clay-*`/`poster-*`/`figure-*`/`dossier-*` remains).
-  It's a fixed four-beat sequence — Hero → Problem → Gallery → Highlights —
+  It's a seven-beat sequence — Hero → Problem → Process (How It Works) →
+  Demo (In Action) → Gallery → Stats (By the Numbers) → Highlights —
   built from stacked full-screen (`min-h-dvh` — a *minimum*, not a fixed
-  height: see Problem below, which is allowed to grow taller) sections
+  height: see Problem below, which is allowed to grow taller — and
+  `ProjectPhotoCarousel`'s slides below, which need the opposite, a
+  genuinely fixed `h-dvh`, for a different reason explained there) sections
   (unlike most of the site, which is one continuously-scrolling column),
   each one revealing once via Framer Motion `whileInView`/staggered-mount as
   it enters the viewport (never scroll-jacked/pinned at the Framer Motion
@@ -174,47 +181,114 @@ author's own voice.
     `useReducedMotion()` ever resolves differently between the server
     render and the first client render. Skipped entirely when a project has
     no `problem` set yet.
-  - **Gallery** (`components/project_gallery.tsx`): a single 2x2 Swiss-grid
-    contact sheet — always exactly one full-screen slide, never paginated —
-    of `Project.image` first, then each `Project.figures[]` entry
-    (`lib/resume_data.ts`). `Project.image` is shared with the Projects
-    listing card (`project_parallax.tsx`) and OG/social metadata — it's
-    always the project's real photo, never swapped for a placeholder. The
-    gallery's cover cell can show something else instead via
-    `Project.coverThumbnail` (e.g. a shared placeholder), but clicking it
-    still opens the real `image` — that override is scoped to the gallery
-    cell only, the listing card and metadata are untouched by it. Each
-    `figures[]` entry can similarly set its own `full` to differ from its
-    `src` thumbnail; falls back to the cell's own thumbnail when unset (the
-    common case). The grid fills nearly the whole viewport
-    (`flex-1` inside the section, thin `gap-3 md:gap-4`, no fixed aspect
-    ratio — the 2x2 tracks size the cells, `object-cover` crops to whatever
-    that ends up being) rather than sitting as a small centered block. Up to
-    four images get their own cell 1:1; a project with fewer than four just
-    leaves the remaining cells empty (no filler placeholders). A project
-    with *more* than four never grows the grid or adds a second slide —
-    only the first three images get their own cell, and the 4th cell dims
-    its image under a bold `.project-gallery-overlay` "+N" badge (N = every
-    photo not otherwise shown, including that 4th image itself — e.g. 6
-    total images reads "+3"). Clicking that tile calls
-    `useLightbox().openGallery()` (`components/lightbox.tsx`) with the full
-    remaining set instead of the single-image `open()` every other cell
-    uses, putting the lightbox into prev/next mode (`.lightbox-nav-prev`/
-    `-next` arrow buttons, ArrowLeft/ArrowRight key handling, an "i / N"
-    `.lightbox-counter`) so every photo stays reachable without a second
-    page. A plain `open()` call still renders the original single fixed
-    image with no arrows/counter.
-    Captions don't render on the cell itself — figure captions/badges only
-    surface once a photo is open in the lightbox (`.lightbox-caption-badge`
-    etc., `components/lightbox.tsx`); a bare cell just shows the photo, kept
-    deliberately quiet since there's no spare room once a cell fills its
-    quadrant. The only on-cell overlay is the overflow tile's bold "+N"
-    badge. Hover/focus feedback is a plain `scale(1.05)` zoom of the image
-    itself (clipped to the cell via `overflow-hidden`, skipped under
-    `useReducedMotion()`) with a plain `cursor-pointer` — no extra hint icon
-    or gradient overlay layered on top. Each cell keeps `SOFT_MEDIA_BOX`'s
-    rounded/hairline treatment. Degrades gracefully when a project has
-    few/no `figures` yet; no separate "sparse" template needed.
+  - **Process** (`components/project_process.tsx`): "How It Works" — a text
+    slide (kicker + big headline + up to a few numbered steps, reusing
+    Highlights' pale-Swiss-numeral treatment below) followed by the
+    project's architecture diagram/screenshot as a single-photo
+    `ProjectPhotoCarousel` (see below) — tell, then show. A large,
+    near-invisible watermark word ("PROCESS", `text-foreground/[0.05]`) sits
+    behind the text slide as its abstract-design texture, the same device
+    Hero's giant page number and Highlights' pale numerals already use,
+    extended here rather than inventing a new motif. `Project.processHeadline`/
+    `processDiagram`/`processSteps` are each independently optional: the
+    whole beat is skipped if none are set; the diagram slide specifically is
+    skipped if only steps/headline exist and no diagram has been added yet.
+    A missing headline with real steps present still falls back to bracketed
+    `FillerText` (`components/project_placeholder_media.tsx`) rather than
+    leaving that line blank — but steps themselves are never padded with
+    filler entries, only what's actually in `processSteps[]` renders.
+  - **Demo** (`components/project_demo.tsx`): "In Action" — the same
+    text-slide-then-photos shape as Process: a kicker + headline intro slide
+    (watermark word "DEMO"), followed by a single `ProjectPhotoCarousel` fed
+    every `Project.demoClips[]` entry (screenshot or `.mp4/.webm/.mov` screen
+    recording) as one multi-photo track, not one slide per clip. Skipped
+    entirely if the project has no `demoHeadline` and no `demoClips` yet.
+  - **Gallery** (`components/project_gallery.tsx`): `Project.image` first,
+    then each `Project.figures[]` entry, all fed into one
+    `ProjectPhotoCarousel`. This replaced an earlier single 2x2 Swiss-grid
+    contact sheet (`SOFT_MEDIA_BOX` cells, `object-cover` cropping, a "+N"
+    overflow tile opening a lightbox popup) once real project photography
+    made a shared small grid feel like a bottleneck rather than a showcase —
+    `components/lightbox.tsx` and its `.lightbox-*`/`.project-gallery-overlay`
+    CSS have been deleted outright (nothing else on the site used the
+    lightbox); a later editorial-split single-photo-per-slide design
+    (`ProjectPhotoSlide`) was tried and rejected too, in favor of the
+    Apple-product-page carousel below (`components/project_photo_slide.tsx`
+    is deleted, superseded). `Project.image` is still shared with the
+    Projects listing card (`project_parallax.tsx`) and OG/social metadata,
+    always the project's real photo. Skipped entirely when a project has no
+    image/figures.
+  - **`ProjectPhotoCarousel`** (`components/project_photo_carousel.tsx`): the
+    shared building block behind every real photo on a Projects entry page —
+    Process's diagram, every Demo clip, every Gallery photo — modeled on how
+    Apple product pages showcase a product: a horizontal strip you scroll or
+    step through, each photo enlarging as it becomes active. Every photo
+    carries its own real pixel dimensions (the `ImageDimensions` type on
+    `Project.imageDimensions`/`ProjectFigure`/`DemoClip`/`ProcessDiagram` in
+    `lib/resume_data.ts`, pulled from the actual files) so its box is sized
+    off its own resolution rather than a fixed generic frame — a portrait
+    phone photo gets a tall narrow box, a wide dashboard screenshot gets a
+    short wide one. There are limited real photos per project, so each one
+    is shown as large as the slide allows rather than boxed small with
+    padding around it.
+    - **One photo**: no scroll track, no arrows, no dots — just one big
+      centered hero. Sized via `max-h-full max-w-full` + `object-contain`
+      (never `object-cover`) so the photo's own aspect ratio always wins:
+      whichever of the slide's available width/height binds first, the
+      photo scales to fill that and stops, never cropped and never
+      distorted to fill a mismatched box. (A first attempt forced
+      `height: 100%` unconditionally, which for a portrait photo in a wide
+      slide meant its width got capped to the container while height stayed
+      pinned full, and `object-cover` cropped a horizontal slice out of the
+      middle of the photo to force-fit that mismatched box — exactly the
+      "images are cropped" bug to avoid if this is ever touched again.)
+    - **Multiple photos**: a `data-carousel-track` horizontal
+      `overflow-x-auto`/`scroll-snap-type: x mandatory` strip, each photo
+      `h-full w-auto object-cover` (no `max-w` here, so no crop conflict —
+      an item is free to be wider than the viewport, reachable by
+      scrolling/paging). The active (centered) photo sits at full
+      scale/opacity, inactive ones dim and shrink slightly
+      (`scale`/`opacity` via Framer Motion). Left/right circular arrow
+      buttons (`‹`/`›`) sit over the track; whichever side has nothing
+      further to go simply doesn't render its arrow (`active > 0` /
+      `active < total - 1`), rather than rendering disabled. A caption
+      crossfades below the track (`AnimatePresence`) and a row of dot
+      indicators sits under that; a small "NN / NN" counter sits in the
+      kicker row. Since `project_slide_deck.tsx` only ever wheel-jacks
+      (never touches touch/trackpad-swipe input), the same wheel gesture
+      that steps through the rest of the deck also steps through a
+      carousel's photos first before advancing past its slide (see that
+      file's own doc comment for the `data-carousel-track` special-case);
+      touch/drag/scrollbar interaction just scrolls the track natively.
+      Because native `scrollTo`/`scrollBy(behavior:'smooth')` and CSS
+      `scroll-behavior: smooth` silently no-op on this kind of scroll-snap
+      container in some environments, stepping between photos (arrows,
+      dots, and the deck's own wheel handoff) all go through a hand-rolled
+      rAF tween (`lib/smooth_scroll_to.ts`'s `animateScrollLeft`, with a
+      `setTimeout` safety net) rather than the native smooth-scroll APIs.
+
+    Both variants render their `<section data-slide>` at a genuinely fixed
+    `h-dvh`, not the site's usual `min-h-dvh` (see Layout above) — this is
+    load-bearing, not a style choice. The photo's own sizing (`max-h-full`/
+    `h-full` percentages) only resolves against a *definite* ancestor
+    height; `min-h-dvh` leaves a flex-grow slide's height indefinite until
+    its content is measured, which is circular for a child whose own size
+    depends on that same ancestor height, and Chromium falls back to sizing
+    the flex item off its content's intrinsic size instead of the viewport.
+    Concretely this both let single-hero photos render taller than the
+    screen (defeating `object-contain`'s whole purpose) and made
+    `project_slide_deck.tsx`'s own `isTaller()` check misfire (a slide that
+    should never exceed one viewport got wheel pass-through treatment
+    instead of a clean wheel-jack step). Videos autoplay/loop/muted/
+    `playsInline`, same as photos otherwise.
+  - **Stats** (`components/project_stats.tsx`): "By the Numbers" — up to a
+    few `Project.stats[]` entries (`{ value, label }`), each a giant
+    `tabular-nums` figure (bigger than Highlights' pale numerals below —
+    these ARE the content, not decoration) with a label underneath. Sits
+    right before Highlights so the page reads outcome-first (numbers), then
+    narrative (bullets/what's next). An unset stat entry (project has no
+    `stats` yet) renders as a placeholder `—` with a bracketed `FillerText`
+    label rather than the whole beat vanishing.
   - **Highlights** (`components/project_highlights.tsx`): the closing slide —
     only rendered if `Project.bullets` and/or `Project.future` exist. Bullets
     render as a large pale Swiss-style numeral (`text-foreground/15`) beside
@@ -271,7 +345,7 @@ convention.
 | `LINK_UNDERLINE`     | Underline that draws in on hover/focus-visible. Standard link treatment.       |
 | `ROW_FILL_HOVER`     | Background/text color inverts on hover/focus-visible. Used for list rows (e.g. Experience list).|
 | `SOFT_MEDIA_BOX`     | Rounded corners + hairline border + diffused shadow, for boxed photography. The Projects listing grid (`components/project_parallax.tsx`) deliberately deviates — same hairline border/shadow, sharp square corners instead — don't copy that override elsewhere without reason. |
-| `FULL_BLEED`         | Breaks an element to full viewport width via `margin: calc(50% - 50vw)` — works regardless of parent width, safe under transformed ancestors (unlike a `left: 50%; translate` approach). |
+| `FULL_BLEED`         | Breaks an element to full viewport width via `margin: calc(50% - 50vw)` — works regardless of parent width, safe under transformed ancestors (unlike a `left: 50%; translate` approach). Used sparingly, for genuine hero moments — not by `ProjectPhotoCarousel`, whose photos stay within their slide's own side padding. |
 
 ## Content / MDX (`content/experience/`)
 

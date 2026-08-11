@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import { Observer } from "gsap/Observer";
 import { useReducedMotion } from "motion/react";
 import { useScrollContainer, useLenis } from "./scroll_container";
+import { animateScrollLeft } from "../lib/smooth_scroll_to";
 
 const SLIDE_DURATION_S = 0.9;
 
@@ -33,6 +34,21 @@ const SLIDE_EASE = (t: number) =>
 // far edge. Landing on a tall slide from below aligns to its bottom, not
 // its top, so scrolling back up immediately continues through its content
 // instead of re-triggering the jack on the very next tick.
+//
+// A slide can also contain a horizontal carousel instead (any
+// `project_photo_carousel.tsx` instance — marked by a `[data-carousel-track]`
+// child): while the current slide is one of those and its track hasn't
+// reached its first/last item yet, a wheel tick nudges the track's own
+// `scrollLeft` via `animateScrollLeft` (see `lib/smooth_scroll_to.ts` — a
+// manual rAF tween, not `scrollBy`/`scrollTo`, which silently no-op on this
+// scroll-snap track) instead of advancing the vertical deck, so the same
+// wheel gesture steps through the carousel first. Because Lenis's wheel
+// listener doesn't check `event.defaultPrevented` (see the note on
+// `lenis.stop()`/`start()` below) it would otherwise also drift the page
+// vertically underneath that horizontal scroll, so Lenis is explicitly
+// stopped for as long as the current slide is a carousel and only resumed
+// once the deck actually leaves it — unlike the tall-slide case above,
+// where letting Lenis keep scrolling vertically is exactly the point.
 export function ProjectSlideDeck({ children }: { children: ReactNode }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useScrollContainer();
@@ -72,6 +88,16 @@ export function ProjectSlideDeck({ children }: { children: ReactNode }) {
         // A couple of px of tolerance against sub-pixel rounding, not a
         // meaningful threshold.
         const isTaller = (slide: HTMLElement) => slide.offsetHeight > wrapper.clientHeight + 2;
+        const getCarouselTrack = (slide: HTMLElement) =>
+          slide.querySelector<HTMLElement>("[data-carousel-track]");
+
+        // Sits on a carousel slide → Lenis stopped (see the doc comment
+        // above for why); anything else → running as normal.
+        const syncLenisForIndex = (index: number) => {
+          if (getCarouselTrack(slides[index])) lenis.stop();
+          else lenis.start();
+        };
+        syncLenisForIndex(currentIndex);
 
         const goTo = (index: number, alignToBottom = false) => {
           const clamped = Math.max(0, Math.min(slides.length - 1, index));
@@ -91,18 +117,20 @@ export function ProjectSlideDeck({ children }: { children: ReactNode }) {
           // it reads the raw delta and nudges scroll regardless, which would
           // otherwise fight this jump on every wheel tick that lands during
           // the animation. stop()/start() (with scrollTo's `force: true` to
-          // still work while stopped) makes this jump the sole source of
-          // scroll for its duration, then hands wheel/touch/etc. back to
-          // Lenis exactly as before once it completes.
+          // still work while stopped, and while already stopped for a
+          // carousel slide per syncLenisForIndex) makes this jump the sole
+          // source of scroll for its duration.
           lenis.stop();
           lenis.scrollTo(scrollTarget, {
             force: true,
             duration: SLIDE_DURATION_S,
             easing: SLIDE_EASE,
             onComplete: () => {
-              lenis.start();
               animating = false;
               currentIndex = clamped;
+              // Hands wheel/touch/etc. back to Lenis exactly as before,
+              // unless the slide just landed on is itself a carousel.
+              syncLenisForIndex(currentIndex);
             },
           });
         };
@@ -126,6 +154,14 @@ export function ProjectSlideDeck({ children }: { children: ReactNode }) {
                 wrapper.scrollTop + wrapper.clientHeight >= current.offsetTop + current.offsetHeight - 2;
               if (!bottomReached) return;
             }
+            const track = getCarouselTrack(current);
+            if (track) {
+              const atEnd = track.scrollLeft >= track.scrollWidth - track.clientWidth - 4;
+              if (!atEnd) {
+                animateScrollLeft(track, track.scrollLeft + track.clientWidth * 0.6);
+                return;
+              }
+            }
             goTo(currentIndex + 1);
           },
           onUp: () => {
@@ -133,6 +169,14 @@ export function ProjectSlideDeck({ children }: { children: ReactNode }) {
             if (isTaller(current)) {
               const topReached = wrapper.scrollTop <= current.offsetTop + 2;
               if (!topReached) return;
+            }
+            const track = getCarouselTrack(current);
+            if (track) {
+              const atStart = track.scrollLeft <= 4;
+              if (!atStart) {
+                animateScrollLeft(track, track.scrollLeft - track.clientWidth * 0.6);
+                return;
+              }
             }
             goTo(currentIndex - 1, true);
           },

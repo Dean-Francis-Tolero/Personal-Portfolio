@@ -148,12 +148,11 @@ body {
 }
 
 /* Projects entry: Apple/Swiss scroll-reveal layout. Full-screen sections
-   (hero title card, problem statement, 2x2 gallery grids, highlights) with
-   generous padding and rounded corners, monochrome, no drop shadows — the
-   old claymorphism poster/figure/dossier system was Projects-only and has
-   been fully retired (see DESIGN.md). Scoped to its own classes so it
-   doesn't affect the broadsheet-* rules above or the shared
-   mdx-components.tsx defaults. */
+   (hero title card, problem statement, big uncropped photo slides,
+   highlights), monochrome, no drop shadows — the old claymorphism
+   poster/figure/dossier system was Projects-only and has been fully retired
+   (see DESIGN.md). Scoped to its own classes so it doesn't affect the
+   broadsheet-* rules above or the shared mdx-components.tsx defaults. */
 .project-chip {
   display: inline-flex;
   align-items: center;
@@ -185,6 +184,18 @@ a.project-chip-on-dark:focus-visible {
   color: var(--foreground);
 }
 
+/* Hides the scrollbar on a natively horizontally-scrollable element
+   (project_photo_carousel.tsx's snap track) without disabling scrolling
+   itself — the carousel's own dot indicators/wheel-jack integration are the
+   intended navigation affordance, not a visible scrollbar. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .media-play-icon {
   position: absolute;
   inset: 0;
@@ -203,122 +214,3 @@ a.project-chip-on-dark:focus-visible {
   filter: drop-shadow(0 0 3px rgba(18, 18, 18, 0.5));
 }
 
-/* Full-screen image/video viewer opened by clicking a gallery image.
-   Deliberately does NOT stretch media past its natural size — upscaling a
-   small source past its native resolution is what was making enlarged
-   screenshots look blurry, so a smaller source just renders at true size,
-   centered, instead of being blown up. */
-.lightbox-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: rgba(18, 18, 18, 0.55);
-}
-
-.lightbox-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.25rem;
-  max-width: 92vw;
-  max-height: 88vh;
-  overflow-y: auto;
-  cursor: default;
-}
-.lightbox-panel img,
-.lightbox-panel video {
-  display: block;
-  width: auto;
-  height: auto;
-  max-width: 92vw;
-  max-height: 72vh;
-  border-radius: 1.5rem;
-}
-
-.lightbox-caption {
-  max-width: 40rem;
-  text-align: center;
-  font-size: 1rem;
-  font-weight: 500;
-  line-height: 1.6;
-  color: var(--muted-strong);
-}
-.lightbox-caption-badge {
-  margin-right: 0.6rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-}
-
-.lightbox-close {
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  width: 2.75rem;
-  height: 2.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  font-size: 1.5rem;
-  line-height: 1;
-  color: var(--background);
-  background: var(--foreground);
-}
-
-/* Prev/next arrows shown when the lightbox is opened onto a navigable
-   queue (currently just the "+N" gallery overflow tile) rather than a
-   single fixed image. */
-.lightbox-nav {
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2.75rem;
-  height: 2.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9999px;
-  color: var(--background);
-  background: var(--foreground);
-}
-.lightbox-nav-prev {
-  left: 1.5rem;
-}
-.lightbox-nav-next {
-  right: 1.5rem;
-}
-.lightbox-counter {
-  position: fixed;
-  bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.8rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--background);
-  background: var(--foreground);
-  padding: 0.35rem 0.85rem;
-  border-radius: 9999px;
-}
-
-/* "+N" overlay on the gallery's 4th cell when a project has more photos
-   than the 2x2 grid can show one-per-cell — the underlying image dims and
-   the count sits on top; clicking opens the lightbox in gallery mode over
-   every remaining photo. */
-.project-gallery-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(18, 18, 18, 0.55);
-  font-size: 2rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  color: #fff;
-}

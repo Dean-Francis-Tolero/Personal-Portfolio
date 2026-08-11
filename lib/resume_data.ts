@@ -23,17 +23,43 @@ export type SkillGroup = {
   items: string[];
 };
 
+// Real pixel dimensions (natural width/height of the source file) — the
+// carousel sizes each photo's box from these directly (aspect-ratio), so a
+// portrait photo gets a tall narrow box and a wide screenshot gets a short
+// wide one, never a fixed generic crop.
+export type ImageDimensions = {
+  width: number;
+  height: number;
+};
+
 export type ProjectFigure = {
-  // photo or screen-recording demo (.mp4/.webm/.mov — auto-detected by extension)
+  // photo or screen-recording demo (.mp4/.webm/.mov — auto-detected by extension),
+  // shown full-size as its own slide, never cropped or thumbnailed.
   src: string;
-  // optional: what the lightbox opens to when this figure's cell is
-  // clicked, if it should differ from the `src` thumbnail (e.g. the
-  // original photo behind a shared placeholder thumbnail). Falls back to
-  // `src` when unset.
-  full?: string;
-  // a sentence or two on what the image actually shows, rendered next to it
-  // as its own captioned section on the project entry page.
+  // a sentence or two on what the image actually shows, rendered beneath it
+  // as its own captioned slide on the project entry page.
   caption: string;
+} & ImageDimensions;
+
+export type ProcessStep = {
+  // one clear sentence on what happens at this stage
+  caption: string;
+};
+
+export type DemoClip = {
+  // screenshot or screen-recording (.mp4/.webm/.mov — auto-detected by extension)
+  src: string;
+  // what's happening in this frame: what the user just did, what changed
+  caption: string;
+} & ImageDimensions;
+
+export type ProcessDiagram = {
+  src: string;
+} & ImageDimensions;
+
+export type Stat = {
+  value: string;
+  label: string;
 };
 
 export type Project = {
@@ -52,20 +78,33 @@ export type Project = {
   tech?: string[];
   // falls back to a bg-muted/25 placeholder block (see ProjectCard) until
   // set. Used by the Projects listing card (`project_parallax.tsx`), OG/social
-  // metadata, AND as the entry page gallery's cover cell — unless
-  // `coverThumbnail` below overrides just that last one.
+  // metadata, AND as the entry page gallery's first slide.
   image?: string;
-  // optional: shown in the entry page gallery's cover cell instead of
-  // `image` (e.g. a shared placeholder thumbnail) — clicking it still opens
-  // the real `image`. Only affects the gallery; the listing card and OG
-  // metadata always use `image` directly. Falls back to `image` when unset.
-  coverThumbnail?: string;
-  // extra figures (diagrams, screenshots, charts) discussed one at a time
-  // further down the project entry page. Entirely optional.
+  // `image`'s natural pixel dimensions — only consulted by the Gallery
+  // carousel (see `image` above) to size its cover box; the listing card
+  // and OG metadata use `image` directly and don't need it.
+  imageDimensions?: ImageDimensions;
+  // extra figures (diagrams, screenshots, charts), each its own full-size
+  // slide further down the project entry page. Entirely optional.
   figures?: ProjectFigure[];
   // path to a PDF write-up/paper in public/ (e.g. "/FLARE/Paper.pdf"),
   // rendered as a "Read the Paper" chip next to the GitHub link.
   paper?: string;
+  // "How It Works" entry-page beat (between Problem and In Action): a
+  // one-line headline on the core mechanism, up to a few numbered steps
+  // (text slide), and an optional architecture diagram shown as its own
+  // big, uncropped, straight-edged photo slide right after. Every field is
+  // independently optional; the whole beat is skipped if none are set.
+  processHeadline?: string;
+  processDiagram?: ProcessDiagram;
+  processSteps?: ProcessStep[];
+  // "In Action" beat: a one-line headline (text slide) followed by one big,
+  // uncropped, straight-edged photo slide per demo clip (screenshot or
+  // screen recording) walking through the product running.
+  demoHeadline?: string;
+  demoClips?: DemoClip[];
+  // "By the Numbers" beat: a few headline stats pulled out of `bullets`.
+  stats?: Stat[];
 };
 
 export const experience: Experience[] = [
@@ -160,14 +199,46 @@ export const projects: Project[] = [
     ],
     tech: ["Python", "PyTorch", "FastAPI", "SQLAlchemy", "Chrome Extension (MV3)"],
     image: "/FLARE/Flare_logo.png",
-    coverThumbnail: "/Cover.png",
+    imageDimensions: { width: 1440, height: 1024 },
     figures: [
-      { src: "/Prototype.png", full: "/FLARE/Architecture.png", caption: "Prototype" },
-      { src: "/Result.png", full: "/FLARE/System_Diagram.png", caption: "Result" },
-      { src: "/Details.png", full: "/FLARE/Admin_Overview.png", caption: "Details" },
+      {
+        src: "/FLARE/System_Diagram.png",
+        width: 1060,
+        height: 579,
+        caption:
+          "The federated topology: browser extensions talk to an FL client, which reports up to the central FL server, corporate deployments included.",
+      },
     ],
     link: "https://github.com/Dean-Francis-Tolero/Flare",
     paper: "/FLARE/Paper.pdf",
+    processHeadline: "Training happens on-device; only weight deltas ever leave it.",
+    processDiagram: { src: "/FLARE/Architecture.png", width: 1299, height: 905 },
+    processSteps: [
+      { caption: "Each client trains locally on-device, computing only weight deltas, raw emails never leave the browser." },
+      { caption: "A FastAPI aggregation server runs FedAvg across client updates, weighted by local sample count." },
+      { caption: "The updated global model ships back down, and the Chrome extension flags phishing emails in real time." },
+    ],
+    demoHeadline: "The admin dashboard, watching the model work in real time.",
+    demoClips: [
+      {
+        src: "/FLARE/Admin_Overview.png",
+        width: 1072,
+        height: 717,
+        caption: "Total flags, false positives, and false negatives tracked live across every connected client.",
+      },
+      {
+        src: "/FLARE/Flagged_Emails.png",
+        width: 1273,
+        height: 717,
+        caption: "Every flagged email, with the model's confidence and a manual override if it got the call wrong.",
+      },
+      {
+        src: "/FLARE/Latency_Chart.png",
+        width: 1378,
+        height: 815,
+        caption: "Prediction latency stays under 15ms even on long emails, benchmarked across 100 requests each.",
+      },
+    ],
     bullets: [
       "Fine-tuned DistilBERT for phishing email detection, achieving 96.3% accuracy and 0.963 F1 on a held-out test set.",
       "Implemented FedAvg in a custom FastAPI aggregation server, weighting client updates by local sample count and handling non-IID data distributions across clients.",
@@ -185,26 +256,38 @@ export const projects: Project[] = [
       "I didn't want a model that just spits out \"AD\" or \"CN\" and calls it a day. I wanted to know it was looking at the right thing before I trusted it. A classifier that's right for the wrong reasons isn't actually useful in a clinical-adjacent setting, even a coursework one.\n\nSo this became less about squeezing out another percentage point of accuracy and more about building explainability in from the start. I used Integrated Gradients to trace every prediction back to the pixels that drove it, and checked those attribution maps against where atrophy is actually expected to show up.\n\nThe small custom CNN was a deliberate choice too: a lighter model is easier to reason about, and it kept the explainability step tractable instead of turning into its own research project.",
     tech: ["Python", "PyTorch", "NiBabel", "Captum"],
     image: "/Dementia_MRI_Classifier/cnn_logo.jpg",
-    coverThumbnail: "/Cover.png",
+    imageDimensions: { width: 1440, height: 1024 },
     figures: [
       {
-        src: "/Prototype.png",
-        full: "/Dementia_MRI_Classifier/Explainability.png",
-        caption: "Prototype",
+        src: "/Dementia_MRI_Classifier/MMSE_vs_Volume.png",
+        width: 566,
+        height: 455,
+        caption:
+          "Cognition (MMSE score) plotted against normalized brain volume, AD cases cluster lower on both axes.",
       },
       {
-        src: "/Result.png",
-        full: "/Dementia_MRI_Classifier/MMSE_vs_Volume.png",
-        caption: "Result",
+        src: "/Dementia_MRI_Classifier/Age_Distribution.png",
+        width: 562,
+        height: 455,
+        caption: "Age distribution across the OASIS-1 dataset, split by diagnosis.",
       },
       {
-        src: "/Details.png",
-        full: "/Dementia_MRI_Classifier/Age_Distribution.png",
-        caption: "Details",
+        src: "/Dementia_MRI_Classifier/Loss_Curve.png",
+        width: 855,
+        height: 547,
+        caption:
+          "Training vs. validation loss over 25 epochs, early stopping catches the overfit right as it starts around epoch 15.",
       },
     ],
     link: "https://github.com/Dean-Francis-Tolero/dementia-mri-classifier",
     paper: "/Dementia_MRI_Classifier/Paper.pdf",
+    processHeadline: "Every prediction traces back to the exact pixels that drove it.",
+    processDiagram: { src: "/Dementia_MRI_Classifier/Explainability.png", width: 1770, height: 886 },
+    processSteps: [
+      { caption: "3D MRI volumes get sliced into 2D, then filtered, normalized, and augmented before training." },
+      { caption: "A lightweight, ~100K-parameter CNN classifies each slice as CN or AD." },
+      { caption: "Integrated Gradients attributes every prediction back to the voxels that actually drove it." },
+    ],
     bullets: [
       "Developed a pipeline to convert 3D MRI volumes into 2D slices, performing filtering, normalization, and augmentation for CN/AD classification.",
       "Built a custom lightweight CNN (~100K parameters) with batch normalization, dropout, and He initialization for robust binary classification on imbalanced datasets.",
@@ -221,13 +304,46 @@ export const projects: Project[] = [
       "A school I knew needed a way to track attendance without a teacher manually taking roll call every single period. It sounded like a small problem until I actually sat with how much class time it was eating, every day, across every classroom.\n\nSo I built them a real system: RFID cards at the door, a teacher-facing dashboard with live and historical attendance, and a separate parent portal scoped to just their own kid's check-ins. Both update over WebSocket, not polling, so nobody's staring at a page waiting for it to refresh.\n\nI ended up selling it to them instead of just shipping it as a portfolio piece: the first time something I built went from a personal project to a system real people used every day.",
     tech: ["JavaScript", "MySQL", "Node.js", "Express.js"],
     image: "/RFID_Attendance_Scanner/RFID_logo.png",
-    coverThumbnail: "/Cover.png",
+    imageDimensions: { width: 1440, height: 1024 },
     figures: [
-      { src: "/Prototype.png", caption: "Prototype" },
-      { src: "/Result.png", caption: "Result" },
-      { src: "/Details.png", caption: "Details" },
+      {
+        src: "/RFID_Attendance_Scanner/building_the_rfid_picture.jpeg",
+        width: 1170,
+        height: 2080,
+        caption: "The build setup: breadboard, RC522 reader, and a battery pack going together on the desk.",
+      },
+      {
+        src: "/RFID_Attendance_Scanner/rfid_materials.jpeg",
+        width: 1170,
+        height: 2080,
+        caption: "Parts list: jumper wires, a breadboard, blank RFID cards, and the Arduino UNO.",
+      },
+      {
+        src: "/RFID_Attendance_Scanner/solar_pannel_showcase.jpeg",
+        width: 1170,
+        height: 2080,
+        caption: "A small solar panel wired in as a backup power source for the reader.",
+      },
     ],
     link: "https://github.com/Dean-Francis-Tolero/RFID-Attendance-Scanner",
+    processHeadline: "A tap at the door, live on two dashboards a second later.",
+    processDiagram: { src: "/RFID_Attendance_Scanner/building_the_rfid_picture_2.jpeg", width: 1170, height: 2080 },
+    processSteps: [
+      { caption: "An RC522 reader wired to an Arduino UNO reads each student's RFID card on tap." },
+      { caption: "The scan posts to a Node.js/Express backend, which logs it to MySQL and pushes it out over WebSocket." },
+      { caption: "Teacher and parent dashboards update live, no polling, no refresh." },
+    ],
+    demoHeadline: "The scanner running end to end, card tap to dashboard update.",
+    demoClips: [
+      {
+        src: "/RFID_Attendance_Scanner/working_demo.mov",
+        // real dimensions unavailable (no codec metadata reader for .mov here) —
+        // matches the phone-portrait aspect of every other RFID photo above.
+        width: 1170,
+        height: 2080,
+        caption: "A card tap registering and showing up on the live attendance dashboard.",
+      },
+    ],
     bullets: [
       "Successfully developed and sold a web-based RFID attendance system for a school, generating approximately 1,000 AED in revenue.",
       "Developed a system with real-time student tracking and automated parent notifications.",
@@ -244,13 +360,45 @@ export const projects: Project[] = [
       "For an Algorithms II midterm, I kept noticing that algorithms like matrix chain multiplication are easy enough to code but hard to actually build real intuition for just by reading the code. You can trace through a DP table on paper once and still not really feel why it works.\n\nSo instead of writing a script that prints an answer, I built a visualizer that animates every step: the DP cost and split tables filling in cell by cell, the recursion tree for merge sort branching out with a live Gantt chart of processor utilization, the Extended Euclidean algorithm unwinding one recursive call at a time.\n\nEverything renders natively in SVG, with pseudocode highlighting synced to whatever's animating, so you can watch the code and the visual update together instead of trying to hold both in your head at once.",
     tech: ["JavaScript", "HTML", "SVG"],
     image: "/Algorithms_II/Algorithms_logo.png",
-    coverThumbnail: "/Cover.png",
+    imageDimensions: { width: 1440, height: 1024 },
     figures: [
-      { src: "/Prototype.png", caption: "Prototype" },
-      { src: "/Result.png", caption: "Result" },
-      { src: "/Details.png", caption: "Details" },
+      {
+        src: "/Algorithms_II/extended_euclidean_demo_picture.png",
+        width: 1065,
+        height: 594,
+        caption:
+          "The Extended Euclidean Algorithm's steps laid out: the Euclidean algorithm's remainders, the GCD result, then back-substitution.",
+      },
     ],
     link: "https://github.com/Dean-Francis-Tolero/Algorithms",
+    processHeadline: "Watch the pseudocode and the animation move together, line by line.",
+    processDiagram: { src: "/Algorithms_II/parallel_merge_sort_demo_picture_2.png", width: 1919, height: 990 },
+    processSteps: [
+      { caption: "Pick an algorithm, Matrix Chain DP, Parallel Merge Sort, or Extended Euclidean, and step through it one move at a time." },
+      { caption: "Every animation frame syncs to the exact pseudocode line driving it." },
+      { caption: "A live Brent's theorem bound tracks the parallel merge sort's theoretical vs. actual speedup as it runs." },
+    ],
+    demoHeadline: "Three algorithms, three ways of watching them think.",
+    demoClips: [
+      {
+        src: "/Algorithms_II/matrix_chain_demo_picture.png",
+        width: 1919,
+        height: 990,
+        caption: "Matrix Chain Multiplication: the DP cost and split tables filling in cell by cell.",
+      },
+      {
+        src: "/Algorithms_II/parallel_merge_sort_demo_picture.png",
+        width: 1919,
+        height: 989,
+        caption: "Parallel Merge Sort's recursion tree branching out, with a live Gantt chart of processor utilization underneath.",
+      },
+      {
+        src: "/Algorithms_II/extended_euclidean_demo_picture_2.png",
+        width: 1919,
+        height: 988,
+        caption: "The Extended Euclidean Algorithm unwinding to its final gcd, x, and y.",
+      },
+    ],
     bullets: [
       "Built three fully animated visualizations (Matrix Chain Multiplication using dynamic programming, Parallel Merge Sort using a fork-join model, and the Extended Euclidean Algorithm), each with step-by-step playback and pseudocode highlighting.",
       "Rendered every visualization natively in SVG, including DP cost/split tables, recursion trees, and a Gantt chart of processor utilization, with no canvas API or external charting library.",

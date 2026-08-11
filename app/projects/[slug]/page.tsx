@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { getProjectSlugs, getProjectBySlug, getProjectPosition } from "../../../lib/project_data";
 import { ProjectHero } from "../../../components/project_hero";
 import { ProjectProblem } from "../../../components/project_problem";
+import { ProjectProcess } from "../../../components/project_process";
+import { ProjectDemo } from "../../../components/project_demo";
 import { ProjectGallery } from "../../../components/project_gallery";
+import { ProjectStats } from "../../../components/project_stats";
 import { ProjectHighlights } from "../../../components/project_highlights";
 import { ProjectSlideDeck } from "../../../components/project_slide_deck";
-import { LightboxProvider } from "../../../components/lightbox";
 
 export function generateStaticParams() {
   return getProjectSlugs().map((slug) => ({ slug }));
@@ -50,18 +52,23 @@ export default async function ProjectEntryPage({
 
   return (
     <main className="min-h-screen">
-      <LightboxProvider>
-        <ProjectSlideDeck>
-          <ProjectHero project={project} position={position} />
-          <ProjectProblem problem={project.problem} />
-          <ProjectGallery
-            image={project.image}
-            coverThumbnail={project.coverThumbnail}
-            figures={project.figures}
-          />
-          <ProjectHighlights bullets={project.bullets} future={project.future} />
-        </ProjectSlideDeck>
-      </LightboxProvider>
+      <ProjectSlideDeck>
+        <ProjectHero project={project} position={position} />
+        <ProjectProblem problem={project.problem} />
+        <ProjectProcess
+          headline={project.processHeadline}
+          diagram={project.processDiagram}
+          steps={project.processSteps}
+        />
+        <ProjectDemo headline={project.demoHeadline} clips={project.demoClips} />
+        <ProjectGallery
+          image={project.image}
+          imageDimensions={project.imageDimensions}
+          figures={project.figures}
+        />
+        <ProjectStats stats={project.stats} />
+        <ProjectHighlights bullets={project.bullets} future={project.future} />
+      </ProjectSlideDeck>
     </main>
   );
 }
