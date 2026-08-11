@@ -25,7 +25,7 @@ export default function HomeContent() {
       animate="animate"
       className="pt-30 min-h-dvh md:h-dvh overflow-y-auto md:overflow-hidden relative flex flex-col"
     >
-      <div className="flex-[1.25] flex flex-col pt-30 px-10">
+      <div className="flex-[1.25] flex flex-col md:pt-30 px-10">
         <div className="w-full p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <motion.div variants={fadeRise} className="flex flex-col text-4xl font-bold">Digital Playground, Personal Portfolio, Design</motion.div>
           <motion.div variants={fadeRise} className="flex flex-col text-2xl text-justify font-medium">I believe in documenting the journey, the ideas, the lessons, and the things we create along the way. This website is not only a portfolio of my work, but also a creative outlet where I explore new ideas, experiment with design, and bring concepts to life.</motion.div>

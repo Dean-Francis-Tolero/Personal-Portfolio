@@ -14,7 +14,7 @@ export default async function ExperiencePage() {
 
   return (
     <main className="min-h-screen">
-      <div className="max-w-7xl mx-auto w-full px-10 pt-40 md:pt-52 pb-24">
+      <div className="max-w-7xl mx-auto w-full px-10 pt-30 md:pt-52 pb-24">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-6">
           <div className="md:col-span-4 md:sticky md:top-40 md:self-start">
             <h1 className="text-4xl md:text-6xl font-bold inline-block">

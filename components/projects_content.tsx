@@ -27,7 +27,7 @@ export default function ProjectsContent() {
         variants={container}
         initial="initial"
         animate="animate"
-        className="max-w-7xl mx-auto w-full px-10 pt-40 md:pt-52"
+        className="max-w-7xl mx-auto w-full px-10 pt-30 md:pt-52"
       >
         <motion.h1 variants={fadeRise} className="text-4xl md:text-6xl font-bold">
           Projects

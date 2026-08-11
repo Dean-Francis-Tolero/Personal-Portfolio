@@ -45,7 +45,7 @@ function ProjectStack({ projects }: { projects: Project[] }) {
       {projects.map((project, i) => (
         <motion.div
           key={project.id}
-          initial={reduceMotion ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0, y: 24, filter: "blur(16px)" }}
+          initial={reduceMotion ? { opacity: 1, y: 0, filter: "blur(0px)" } : { opacity: 0, y: 24, filter: "blur(6px)" }}
           whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
           transition={reduceMotion ? { duration: 0 } : { duration: 0.6, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
@@ -83,7 +83,7 @@ function ProjectGrid({ projects }: { projects: Project[] }) {
   // Cards start blurred and sharpen on the same 0 -> 0.2 scroll window as the
   // rest of the reveal, so "scroll down to bring it into focus" reads as one
   // coherent motion rather than blur and tilt settling at different times.
-  const blur = useSpring(useTransform(scrollYProgress, [0, 0.2], reduceMotion ? [0, 0] : [16, 0]), springConfig);
+  const blur = useSpring(useTransform(scrollYProgress, [0, 0.2], reduceMotion ? [0, 0] : [6, 0]), springConfig);
   const filter = useTransform(blur, (b) => `blur(${b}px)`);
 
   const [firstRow, secondRow] = splitIntoRows(projects);

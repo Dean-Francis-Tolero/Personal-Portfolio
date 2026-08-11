@@ -49,7 +49,16 @@ author's own voice.
 
 - Standard reading column: `max-w-3xl mx-auto w-full px-10`, used by most
   pages (About, Resume, Projects entry body, Experience list).
-- Page top padding for content below the fixed nav: `pt-40 md:pt-52`.
+- Page top padding for content below the fixed nav: `pt-30 md:pt-52` — the
+  `pt-40` mobile value left too large a gap above the first line of content
+  on phone-width screens (the fixed `Logo` only needs `top-6 h-16`, ~88px,
+  cleared), so mobile was brought down to `pt-30`, matching what Resume
+  already used. Desktop's `md:pt-52` is unchanged. `home_content.tsx` had
+  its own bug in the same family: `pt-30` on `<main>` *and* on its direct
+  child stacked into 240px of dead space at every breakpoint (padding
+  doesn't collapse like margins) — fixed by keeping the child's `pt-30`
+  `md:`-only, so mobile drops to a single 120px while desktop keeps its
+  original 240px total unchanged.
 - The Experience entry page ("broadsheet" layout, see below) is a deliberate
   exception at `max-w-[900px] px-6 md:px-10` to give its two-column body
   enough width to breathe — not a general pattern to copy elsewhere without

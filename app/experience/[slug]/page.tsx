@@ -83,7 +83,7 @@ export default async function ExperienceEntryPage({
   return (
     <main className="min-h-screen">
       <article className="pb-24">
-        <div className="max-w-[900px] mx-auto w-full px-6 md:px-10 pt-40 md:pt-52">
+        <div className="max-w-[900px] mx-auto w-full px-6 md:px-10 pt-30 md:pt-52">
           <header className="broadsheet-masthead">
             <Link
               href="/experience"
