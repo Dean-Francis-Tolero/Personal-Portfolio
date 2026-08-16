@@ -219,6 +219,11 @@ export const projects: Project[] = [
       { caption: "The updated global model ships back down, and the Chrome extension flags phishing emails in real time." },
     ],
     demoHeadline: "The admin dashboard, watching the model work in real time.",
+    stats: [
+      { value: "96.3%", label: "Detection Accuracy" },
+      { value: "0.963", label: "F1 Score" },
+      { value: "Under 15ms", label: "Prediction Latency" },
+    ],
     demoClips: [
       {
         src: "/FLARE/Admin_Overview.png",
@@ -288,6 +293,11 @@ export const projects: Project[] = [
       { caption: "A lightweight, ~100K-parameter CNN classifies each slice as CN or AD." },
       { caption: "Integrated Gradients attributes every prediction back to the voxels that actually drove it." },
     ],
+    stats: [
+      { value: "About 100,000", label: "Model Parameters" },
+      { value: "25", label: "Training Epochs" },
+      { value: "CN vs AD", label: "Classification Task" },
+    ],
     bullets: [
       "Developed a pipeline to convert 3D MRI volumes into 2D slices, performing filtering, normalization, and augmentation for CN/AD classification.",
       "Built a custom lightweight CNN (~100K parameters) with batch normalization, dropout, and He initialization for robust binary classification on imbalanced datasets.",
@@ -334,6 +344,11 @@ export const projects: Project[] = [
       { caption: "Teacher and parent dashboards update live, no polling, no refresh." },
     ],
     demoHeadline: "The scanner running end to end, card tap to dashboard update.",
+    stats: [
+      { value: "About 1,000 AED", label: "Revenue Generated" },
+      { value: "Real-Time", label: "Sync, No Polling" },
+      { value: "1", label: "School Deployed" },
+    ],
     demoClips: [
       {
         src: "/RFID_Attendance_Scanner/working_demo.mov",
@@ -398,6 +413,11 @@ export const projects: Project[] = [
         height: 988,
         caption: "The Extended Euclidean Algorithm unwinding to its final gcd, x, and y.",
       },
+    ],
+    stats: [
+      { value: "3", label: "Algorithms Visualized" },
+      { value: "Zero", label: "Build Dependencies" },
+      { value: "SVG", label: "Native Rendering" },
     ],
     bullets: [
       "Built three fully animated visualizations (Matrix Chain Multiplication using dynamic programming, Parallel Merge Sort using a fork-join model, and the Extended Euclidean Algorithm), each with step-by-step playback and pseudocode highlighting.",
